@@ -2,6 +2,8 @@
 
 This project is a Swarm Robotics simulation platform implemented using Python and Matplotlib. It allows users to create custom Swarm Robotics algorithms and test and evaluate them in a simulated environment.
 
+[English](./README.md)|[中文](./readme_chinese.md)
+
 ## Target Platform
 - Linux
 - OSX
