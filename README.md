@@ -40,7 +40,7 @@ Replace Python with your compiler version.In this script, you can modify various
 
 ![Path planning](Resource/path_planning_3d.gif)
 
-## &lt;g id="1"&gt;4&lt;/g&gt;Example: 
+## 4. Example: 
 
 *   Here's a simple example that uses a random walk algorithm to simulate a Swarm Robotics system:
 
