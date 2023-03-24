@@ -16,7 +16,9 @@ To install the project, you need to perform the following steps:
 
 ```bash
 git clone https://github.com/xzlxiao/SwarmRobotics.git
-``` - Installation Dependencies:
+``` 
+
+- Installation Dependencies:
 
 ```bash
 pip install -r requirements.txt
