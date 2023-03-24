@@ -11,7 +11,7 @@ except:
     isCupy = False
 import matplotlib.patches as mpathes
 from PyQt5.QtWidgets import QWidget
-from common.utils import svg_parse, loadSVG, unitVector
+from Common.utils import svg_parse, loadSVG, unitVector
 from matplotlib.path import Path
 import math
 import random

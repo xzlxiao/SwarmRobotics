@@ -14,7 +14,7 @@ from Simulation.ComObject import ComObject
 import math
 import copy
 from Simulation.ComObjectCollection import *
-from common import utils
+from Common import utils
 
 
 class CommunicateMethods(enum.Enum):

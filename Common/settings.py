@@ -1,24 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-       .==.        .==.
-      //`^\\      //^`\\
-     // ^ ^\(\__/)/^ ^^\\PIXEL_SCALE
-    //^ ^^ ^/+  0\ ^^ ^ \\
-   //^ ^^ ^/( >< )\^ ^ ^ \\
-  // ^^ ^/\| v''v |/\^ ^ ^\\
- // ^^/\/ /  `~~`  \ \/\^ ^\\
- ----------------------------
-BE CAREFULL! THERE IS A DRAGON.
 
-功能：settings
-备注：
-
-案例：
-
-模块：
-(c) 肖镇龙 2019
-依赖：
-"""
 import sympy
 usingCuda = False 
 isTimeDisp = True

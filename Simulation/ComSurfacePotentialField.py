@@ -1,7 +1,7 @@
 from matplotlib import cm, markers
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
-from common import utils as myUtils
+from Common import utils as myUtils
 isCupy = False
 try:
     import cupy as np
@@ -11,7 +11,7 @@ except:
     isCupy = False
 from Simulation.ComSurfaceBase import ComSurfaceBase, PlotType
 from Simulation.ComPathPlanning import calc_potential_field2
-
+from Simulation.ComPathPlanning3D import potential_field_planning, calc_potential_field_mat
 
 
 class ComSurfacePotentialField(ComSurfaceBase):
@@ -22,8 +22,12 @@ class ComSurfacePotentialField(ComSurfaceBase):
         self.mCMap = cm.Blues
         self.mRobotRadius = 20      
         self.mPlotType = PlotType.type_contourf
+        self.mBindingRobot = None
         # self.mCMap = cm.ocean
-        
+
+    def setBindingRobot(self, robot):
+        self.mBindingRobot = robot
+
     def setRobotRadius(self, radius):
         self.mRobotRadius = radius
 
@@ -39,13 +43,11 @@ class ComSurfacePotentialField(ComSurfaceBase):
         """
         
         obstacle_pos_group = [obstacle.mPos for obstacle in self.mObstacleList]
-        # x_mat = np.repeat(np.array([self.mX]), len(self.mY), axis=0).astype(float)
-        # y_mat = np.repeat(np.array([self.mY]), len(self.mX), axis=0).T.astype(float)
-        # self.mData = np.zeros_like(x_mat, dtype=np.float)
-        # data_tmp = np.zeros_like(x_mat, dtype=np.float)
 
+        if self.mBindingRobot is not None:
+            self.setOffset(self.mBindingRobot.mPos[2])
+            
         if self.mZDir == 'z' or self.mZDir == '2D':
-            # print(x_mat.shape, y_mat.shape, self.mData.shape)
             if len(self.mObstacleList) > 0:
                 obstacle_pos_x_list = [i[0] for i in obstacle_pos_group]
                 obstacle_pos_y_list = [i[1] for i in obstacle_pos_group]
@@ -66,25 +68,36 @@ class ComSurfacePotentialField(ComSurfaceBase):
                 # data_tmp = 1 - np.sqrt(np.power(x_mat - obstacle_pos_x_list, 2) + np.power(y_mat - obstacle_pos_y_list, 2)) / self.mSenseDistance
                 # self.mData = data_tmp
 
+        elif self.mZDir == '3D':
+            # pass
+            # print(x_mat.shape, y_mat.shape, self.mData.shape)
+            if len(self.mObstacleList) > 0:
+                obstacle_pos_x_list = [i[0] for i in obstacle_pos_group]
+                obstacle_pos_y_list = [i[1] for i in obstacle_pos_group]
+                obstacle_pos_z_list = [i[2] for i in obstacle_pos_group]
+
+                gx, gy, gz = None, None, None
+                ox = obstacle_pos_x_list
+                oy = obstacle_pos_y_list
+                oz = obstacle_pos_z_list
+                reso= (np.max(self.mX) - np.min(self.mX))/len(self.mX)
+                rr = self.mRobotRadius
+                map_size=(np.min(self.mX), np.min(self.mY), np.max(self.mX), np.max(self.mY))
+                if self.mTarget is not None:
+                    gx, gy, gz = self.mTarget[:]
+                data, minx, miny, minz = calc_potential_field_mat(gx, gy, gz, ox, oy, oz, rr, reso=10, map_size=(-1000, -1000, -1000, 1000, 1000, 1000))
+                offset_z = int((self.mOffset-minz)/reso)
+                self.mData = data[:,:,offset_z]
+
+
+
         elif self.mZDir == 'y':
             pass 
-            # if len(self.mObstacleList) > 0:
-            #     for obstacle_pos_tmp in obstacle_pos_group:
-            #         obstacle_pos_x_list[:] = obstacle_pos_tmp[0]     # 把x坐标赋予x矩阵
-            #         obstacle_pos_y_list[:] = obstacle_pos_tmp[2]     # 把z坐标赋予y矩阵
-            #         data_tmp = 1 - np.sqrt(np.power(x_mat - obstacle_pos_x_list, 2) + np.power(y_mat - obstacle_pos_y_list, 2)) / self.mSenseDistance
-            #         ind_bool = data_tmp > self.mData
-            #         self.mData[ind_bool] = data_tmp[ind_bool]
+
 
         elif self.mZDir == 'x':
             pass 
-            # if len(self.mObstacleList) > 0:
-            #     for obstacle_pos_tmp in obstacle_pos_group:
-            #         obstacle_pos_x_list[:] = obstacle_pos_tmp[1]     # 把x坐标赋予y矩阵
-            #         obstacle_pos_y_list[:] = obstacle_pos_tmp[2]     # 把z坐标赋予z矩阵
-            #         data_tmp = 1 - np.sqrt(np.power(x_mat - obstacle_pos_x_list, 2) + np.power(y_mat - obstacle_pos_y_list, 2)) / self.mSenseDistance
-            #         ind_bool = data_tmp > self.mData
-            #         self.mData[ind_bool] = data_tmp[ind_bool]
+
         
         super().update()
 

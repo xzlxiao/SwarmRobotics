@@ -1,7 +1,7 @@
 from matplotlib import cm, markers
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
-from common import utils
+from Common import utils
 isCupy = False
 try:
     import cupy as np
@@ -9,10 +9,10 @@ try:
 except:
     import numpy as np
     isCupy = False
-from Communication.simulation.ComSurfaceBase import ComSurfaceBase
-from Communication.simulation.ComObjectCollection import *
-from common.DrKDtree import KDtree
-import common.settings as mySettings 
+from Simulation.ComSurfaceBase import ComSurfaceBase
+from Simulation.ComObjectCollection import *
+from Common.DrKDtree import KDtree
+import Common.settings as mySettings 
 
 
 class ComSurfaceCrowded(ComSurfaceBase):

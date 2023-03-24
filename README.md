@@ -5,11 +5,13 @@ This project is a Swarm Robotics simulation platform implemented using Python an
 [English](./README.md)|[中文](./readme_chinese.md)
 
 ## Target Platform
+
 - Linux
 - OSX
 - windows10
 
 ## Installation
+
 To install this project, you need to follow these steps:
 
 1. Clone the project:

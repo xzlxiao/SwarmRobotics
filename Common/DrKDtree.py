@@ -1,25 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-       .==.        .==.
-      //`^\\      //^`\\
-     // ^ ^\(\__/)/^ ^^\\
-    //^ ^^ ^/+  0\ ^^ ^ \\
-   //^ ^^ ^/( >< )\^ ^ ^ \\
-  // ^^ ^/\| v''v |/\^ ^ ^\\
- // ^^/\/ /  `~~`  \ \/\^ ^\\
- ----------------------------
-BE CAREFULL! THERE IS A DRAGON.
-
-功能：kdtree
-备注：
-案例：
-
-模块：
-(c) 肖镇龙 2019
-依赖：
-pip3 install mkl
-"""
 from sklearn.neighbors import KDTree as skl_kdtree
 isCupy = False
 try:
