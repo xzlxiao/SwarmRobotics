@@ -8,7 +8,7 @@ python translate_readme.py
 
 [English](./README.md)|[中文](./readme_chinese.md)
 
-## Install
+## 2. Set Up
 
 To install the project, you need to perform the following steps:
 
@@ -28,7 +28,7 @@ pip install -r requirements.txt
 cd SwarmRobotics
 ```
 
-## Instructions
+## 3. How to use
 
 To run the Swarm Robotics simulation platform, you can execute the following command:
 
@@ -36,11 +36,11 @@ To run the Swarm Robotics simulation platform, you can execute the following com
 python Example/exm_路径规划-3D.py
 ```
 
-Replace Python with your compiler version.
+Replace Python with your compiler version.In this script, you can modify various parameters of the algorithm.
 
-In the GUI, you can select the algorithm, environment, and simulation parameters, and then start the simulation. During simulation, you can observe the behavior of the Swarm Robotics system and make real-time adjustments to the algorithm.
+![Path planning](Resource/path_planning_3d.gif)
 
-## Sample
+## &lt;g id="1"&gt;4&lt;/g&gt;Example: 
 
 *   Here's a simple example that uses a random walk algorithm to simulate a Swarm Robotics system:
 
@@ -52,11 +52,11 @@ swarm.run()
 swarm.animate()
 ```
 
-## Author
+## 5. Author
 
 *   Xiao Zhenlong(肖镇龙)
 
-## Contribution
+## 6. Contribution
 
 Contributors:
 
@@ -65,8 +65,8 @@ Contributors:
 
 CONTRIBUTING.md
 
-## License
+## 7. Permits
 
-The project is licensed under the mit License. For more information, see license.
+It is licensed under the GPL (GNU General Public License). For more information, see license.
 
-License
+[LICENSE](./LICENSE)

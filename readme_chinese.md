@@ -1,4 +1,4 @@
-# 群体机器人（SwarmRobotics）
+# 1. 群体机器人（SwarmRobotics）
 
 该项目是一个使用Python和Matplotlib实现的Swarm Robotics仿真平台。它允许用户创建自定义的Swarm Robotics算法，并在仿真环境中进行测试和评估。
 英文版是机器翻译，中文版readme更为可读，建议主要参考中文版。
@@ -10,7 +10,7 @@ python translate_readme.py
 
 [English](./README.md)|[中文](./readme_chinese.md)
 
-## 安装
+## 2. 安装
 要安装该项目，您需要执行以下步骤：
 
 - 克隆该项目：
@@ -32,7 +32,7 @@ cd SwarmRobotics
 
 
 
-## 使用方法
+## 3. 使用方法
 要运行Swarm Robotics仿真平台，可以执行如下以下命令：
 
 ```bash
@@ -45,7 +45,7 @@ python Example/exm_路径规划-3D.py
 ![Path planning](Resource/path_planning_3d.gif)
 
 
-## 示例
+## 4. 示例
 - 下面是一个简单的示例，它使用随机游走算法模拟一个Swarm Robotics系统：
 
 ```python
@@ -56,10 +56,10 @@ swarm.run()
 swarm.animate()
 ```
 
-## 作者
+## 5. 作者
 - [肖镇龙](https://github.com/username)
 
-## 贡献
+## 6. 贡献
 贡献者们：
 
 - [Contributor Name](https://github.com/contributor-username)
@@ -67,7 +67,7 @@ swarm.animate()
 
 [CONTRIBUTING.md]()
 
-## 许可证
-该项目基于MIT许可证。有关详细信息，请参阅LICENSE。
+## 7. 许可证
+该项目基于GPL(GNU General Public License)许可证。有关详细信息，请参阅LICENSE。
 
 [LICENSE]()
