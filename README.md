@@ -38,7 +38,7 @@ python Example/exm_路径规划-3D.py
 
 Replace Python with your compiler version.In this script, you can modify various parameters of the algorithm.
 
-![Path planning](Resource/path_planning_3d.gif)
+![](Resource/path_planning_3d.gif)
 
 ## 4. Example: 
 
