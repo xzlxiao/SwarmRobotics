@@ -8,7 +8,7 @@ python translate_readme.py
 
 [English](./README.md)|[中文](./readme_chinese.md)
 
-## 2. Set Up
+## 1. Configure
 
 To install the project, you need to perform the following steps:
 
@@ -16,7 +16,7 @@ To install the project, you need to perform the following steps:
 
 ```bash
 git clone https://github.com/xzlxiao/SwarmRobotics.git
-``` - Install Dependencies:
+``` - Installation Dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -28,9 +28,9 @@ pip install -r requirements.txt
 cd SwarmRobotics
 ```
 
-## 3. How to use
+## 2. How to use
 
-To run the Swarm Robotics simulation platform, you can execute the following command:
+To run the Swarm Robotics simulation platform, you can execute the following command:- 3D path planning (potential field path planning algorithm)
 
 ```bash
 python Example/exm_路径规划-3D.py
@@ -38,9 +38,37 @@ python Example/exm_路径规划-3D.py
 
 Replace Python with your compiler version.In this script, you can modify various parameters of the algorithm.
 
-![Path planning](Resource/path_planning_3d.gif)
+![](Resource/path_planning_3d.gif)
 
-## &lt;g id="1"&gt;4&lt;/g&gt;Example: 
+*   2D Path Planning 1
+
+![](Resource/path_planning_2d.gif)
+
+*   2D Path Planning 2
+
+![](Resource/path_planning_2d_2.gif)
+
+*   3D Path Following
+
+![](Resource/path_following_3d.gif)
+
+*   2D Path Following
+
+![](Resource/path_following_2d.gif)
+
+*   multi-objective search algorithm
+
+![](Resource/multi_target_search.gif)
+
+*   Subgroup dynamic segmentation algorithm
+
+![](Resource/subgroup_split.gif)
+
+*   AFSA multi-robot target search, perception limited
+
+![](Resource/AFSA.gif)
+
+## &lt;g id="1"&gt;3&lt;/g&gt;Example: 
 
 *   Here's a simple example that uses a random walk algorithm to simulate a Swarm Robotics system:
 
@@ -52,20 +80,20 @@ swarm.run()
 swarm.animate()
 ```
 
-## 5. Author
+## 4. Author
 
 *   Xiao Zhenlong(肖镇龙)
 
-## 6. Contribution
+## 5. Contribution
 
 Contributors:
 
 *   Contributor Name
 *   If you want to contribute to the project, see contributing
 
-CONTRIBUTING.md
+[CONTRIBUTING.md]()
 
-## 7. Permits
+## 6. Permits
 
 It is licensed under the GPL (GNU General Public License). For more information, see license.
 

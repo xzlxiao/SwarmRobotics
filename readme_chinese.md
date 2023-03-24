@@ -1,4 +1,4 @@
-# 1. 群体机器人（SwarmRobotics）
+#  群体机器人（SwarmRobotics）
 
 该项目是一个使用Python和Matplotlib实现的Swarm Robotics仿真平台。它允许用户创建自定义的Swarm Robotics算法，并在仿真环境中进行测试和评估。
 英文版是机器翻译，中文版readme更为可读，建议主要参考中文版。
@@ -10,7 +10,7 @@ python translate_readme.py
 
 [English](./README.md)|[中文](./readme_chinese.md)
 
-## 2. 安装
+## 1. 安装
 要安装该项目，您需要执行以下步骤：
 
 - 克隆该项目：
@@ -32,9 +32,9 @@ cd SwarmRobotics
 
 
 
-## 3. 使用方法
+## 2. 使用方法
 要运行Swarm Robotics仿真平台，可以执行如下以下命令：
-
+- 3D路径规划（势场路径规划算法）
 ```bash
 python Example/exm_路径规划-3D.py
 ```
@@ -42,10 +42,38 @@ python Example/exm_路径规划-3D.py
 把python换成你对应的编译器版本。
 在该脚本里，你能修改算法的各样参数。
 
-![Path planning](Resource/path_planning_3d.gif)
+![](Resource/path_planning_3d.gif)
+
+- 2D路径规划1
+
+![](Resource/path_planning_2d.gif)
+
+- 2D路径规划2
+
+![](Resource/path_planning_2d_2.gif)
+
+- 3D路径跟随
+
+![](Resource/path_following_3d.gif)
+
+- 2D路径跟随
+
+![](Resource/path_following_2d.gif)
+
+- 多目标搜索算法
+
+![](Resource/multi_target_search.gif)
+
+- 子群动态分割算法
+
+![](Resource/subgroup_split.gif)
+
+- AFSA多机器人目标搜索，感知受限
+
+![](Resource/AFSA.gif)
 
 
-## 4. 示例
+## 3. 示例
 - 下面是一个简单的示例，它使用随机游走算法模拟一个Swarm Robotics系统：
 
 ```python
@@ -56,10 +84,10 @@ swarm.run()
 swarm.animate()
 ```
 
-## 5. 作者
+## 4. 作者
 - [肖镇龙](https://github.com/username)
 
-## 6. 贡献
+## 5. 贡献
 贡献者们：
 
 - [Contributor Name](https://github.com/contributor-username)
@@ -67,7 +95,7 @@ swarm.animate()
 
 [CONTRIBUTING.md]()
 
-## 7. 许可证
+## 6. 许可证
 该项目基于GPL(GNU General Public License)许可证。有关详细信息，请参阅LICENSE。
 
-[LICENSE]()
+[LICENSE](./LICENSE)
