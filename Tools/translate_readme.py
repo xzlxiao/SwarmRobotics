@@ -30,10 +30,11 @@ def copyMdCode(text, flags=('bash','python')):
             if match is None:
                 break
             text_old = text[match.start():match.end()]
-            text_new = getRandomNumstr(20)
+            text_old = '\n' + text_old + '\n'
+            text_new = getRandomNumstr(20) 
             # pattern.sub(text_new, text)
             # print(text_old)
-            text = text.replace(text_old, text_new)
+            text = text.replace(text_old, '\n'+text_new+'\n')
             code_copy[text_new] = text_old
     return code_copy, text
     # a.string
@@ -46,16 +47,16 @@ def restoreEle(text, item_list):
         text = text.replace(text_new, text_old)
     return text
 
-def translate_every_ele(html_tree, ele='p', except_text=None, except_replace_text=None):
+def translate_every_ele(html_tree, ele='p', except_text=None):
     eles = html_tree.find_all(ele)
     eles_size = len(eles)
     print('---------发现%d个%s元素---------'%(eles_size, ele))
     for ind, i in enumerate(eles):
         print('[%s]: [%d|%d]'%(ele, ind+1, eles_size))
         if i.string is not None:
+            except_text: tuple
             if except_text is not None and i.string in except_text:
-                ind = except_text.index(i.string)
-                i.string = except_replace_text[ind]
+                i.string = except_text[i.string]
             else:
                 print(i.string)
                 i.string = translate_to_english(i.string)
@@ -75,25 +76,36 @@ if __name__ == '__main__':
     code_back, text = copyMdCode(text, ('bash', 'python'))
 
     html1 = markdown.markdown(text)
-    # print(html2markdown.convert(html1))
+    print(html1)
     html_tree = BeautifulSoup(html1, 'html.parser')   
     html_tree.h1.string = 'SwarmRobotics'
 
-    except_text = ('肖镇龙', 'CONTRIBUTING.md', '中文')
-    except_placed_text = ('Xiao Zhenlong(肖镇龙)', 'CONTRIBUTING.md', '中文')
+    except_text = {
+        '肖镇龙': 'Xiao Zhenlong(肖镇龙)',
+        'CONTRIBUTING.md': 'CONTRIBUTING.md',
+        '中文': '中文',
+        '3. 示例': '3. Example',
+        '肖镇龙': '[肖镇龙](https://github.com/xzlxiao)',
+        '李昌浩': '[李昌浩](https://github.com/Pekachiu)',
+        'CONTRIBUTING.md': '[CONTRIBUTING.md]()',
+        'LICENSE.md': '[LICENSE](./LICENSE)',
+    }
+    # except_text = ('肖镇龙', 'CONTRIBUTING.md', '中文')
+    # except_placed_text = ('Xiao Zhenlong(肖镇龙)', 'CONTRIBUTING.md', '中文')
     print('===============开始翻译===============')
 
     
     # code_data = copyEle(html_tree, 'code')
-    translate_every_ele(html_tree, 'p', except_text=except_text, except_replace_text=except_placed_text)
-    translate_every_ele(html_tree, 'h2', except_text=except_text, except_replace_text=except_placed_text)
-    translate_every_ele(html_tree, 'li', except_text=except_text, except_replace_text=except_placed_text)
-    translate_every_ele(html_tree, 'a', except_text=except_text, except_replace_text=except_placed_text)
+    translate_every_ele(html_tree, 'h2', except_text=except_text)
+    translate_every_ele(html_tree, 'li', except_text=except_text)
+    translate_every_ele(html_tree, 'p', except_text=except_text)
+    translate_every_ele(html_tree, 'a', except_text=except_text)
     # restoreEle(html_tree, code_data, 'code')
     # html_tree.
     
     html2 = str(html_tree)
     
+    # print(html2)
 
     md_text = html2markdown.convert(html2)
     md_text = restoreEle(md_text, code_back)

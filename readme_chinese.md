@@ -2,10 +2,10 @@
 
 该项目是一个使用Python和Matplotlib实现的Swarm Robotics仿真平台。它允许用户创建自定义的Swarm Robotics算法，并在仿真环境中进行测试和评估。
 英文版是机器翻译，中文版readme更为可读，建议主要参考中文版。
-翻译脚本为：
+自动翻译脚本为：
 
 ```bash
-python translate_readme.py
+python Tools/translate_readme.py
 ```
 
 [English](./README.md)|[中文](./readme_chinese.md)
@@ -34,6 +34,7 @@ cd SwarmRobotics
 
 ## 2. 使用方法
 要运行Swarm Robotics仿真平台，可以执行如下以下命令：
+
 - 3D路径规划（势场路径规划算法）
 ```bash
 python Example/exm_路径规划-3D.py
@@ -41,6 +42,8 @@ python Example/exm_路径规划-3D.py
 
 把python换成你对应的编译器版本。
 在该脚本里，你能修改算法的各样参数。
+
+以下示例图是gif图片，部分浏览器可能无法自动播放。
 
 ![](Resource/path_planning_3d.gif)
 
@@ -85,12 +88,13 @@ swarm.animate()
 ```
 
 ## 4. 作者
-- [肖镇龙](https://github.com/username)
+- [肖镇龙](https://github.com/xzlxiao)
 
 ## 5. 贡献
 贡献者们：
 
-- [Contributor Name](https://github.com/contributor-username)
+- [肖镇龙](https://github.com/xzlxiao)
+- [李昌浩](https://github.com/Pekachiu)
 - 如果您想为该项目做出贡献，请参阅CONTRIBUTING
 
 [CONTRIBUTING.md]()
@@ -98,4 +102,4 @@ swarm.animate()
 ## 6. 许可证
 该项目基于GPL(GNU General Public License)许可证。有关详细信息，请参阅LICENSE。
 
-[LICENSE](./LICENSE)
+[LICENSE.md](./LICENSE)

@@ -1,10 +1,12 @@
 # SwarmRobotics
 
-The project is a Swarm Robotics simulation platform implemented using Python and Matplotlib.It allows users to create custom Swarm Robotics algorithms and test and evaluate them in a simulated environment.The English version is machine translation, the Chinese version of the readme is more readable, it is recommended to refer to the Chinese version.Translate script as:
+The project is a Swarm Robotics simulation platform implemented using Python and Matplotlib.It allows users to create custom Swarm Robotics algorithms and test and evaluate them in a simulated environment.The English version is machine translation, the Chinese version of the readme is more readable, it is recommended to refer to the Chinese version.Automatically translated scripts are:
+
 
 ```bash
-python translate_readme.py
+python Tools/translate_readme.py
 ```
+
 
 [English](./README.md)|[中文](./readme_chinese.md)
 
@@ -14,31 +16,39 @@ To install the project, you need to perform the following steps:
 
 *   Clone this item:
 
+
 ```bash
 git clone https://github.com/xzlxiao/SwarmRobotics.git
-``` 
+```
+ - Install Dependencies:
 
-- Installation Dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
+
 *   Enter the project directory:
+
 
 ```bash
 cd SwarmRobotics
 ```
 
+
 ## 2. How to use
 
-To run the Swarm Robotics simulation platform, you can execute the following command:- 3D path planning (potential field path planning algorithm)
+To run the Swarm Robotics simulation platform, you can execute the following command:
 
+*   3D Path Planning (Potential Field Path Planning Algorithm)
 ```bash
 python Example/exm_路径规划-3D.py
 ```
 
+
 Replace Python with your compiler version.In this script, you can modify various parameters of the algorithm.
+
+The following example image is a gif and may not autoplay in some browsers.
 
 ![](Resource/path_planning_3d.gif)
 
@@ -70,9 +80,10 @@ Replace Python with your compiler version.In this script, you can modify various
 
 ![](Resource/AFSA.gif)
 
-## 3. Example: 
+## 3. Example
 
 *   Here's a simple example that uses a random walk algorithm to simulate a Swarm Robotics system:
+
 
 ```python
 from swarm import Swarm
@@ -82,15 +93,17 @@ swarm.run()
 swarm.animate()
 ```
 
+
 ## 4. Author
 
-*   Xiao Zhenlong(肖镇龙)
+*   [肖镇龙](https://github.com/xzlxiao)
 
 ## 5. Contribution
 
 Contributors:
 
-*   Contributor Name
+*   [肖镇龙](https://github.com/xzlxiao)
+*   [李昌浩](https://github.com/Pekachiu)
 *   If you want to contribute to the project, see contributing
 
 [CONTRIBUTING.md]()
