@@ -77,14 +77,34 @@ python Example/exm_路径规划-3D.py
 
 
 ## 3. 示例
-- 下面是一个简单的示例，它使用随机游走算法模拟一个Swarm Robotics系统：
+- 下面是一个简单的示例，它使用路径跟随算使机器人从当前位置移动的目标位置和姿态（target， target_direction）：
 
 ```python
-from swarm import Swarm
-from algorithms import RandomWalk
-swarm = Swarm(algorithm=RandomWalk)
-swarm.run()
-swarm.animate()
+import sys
+sys.path.append('./')
+from Simulation.ComApi import *
+import math
+
+target = (0, 0, 0)
+target_direction = math.pi/2
+
+stage = ComStage2D()
+stage.mRuningTime = 100
+stage.setEnvSize((1000, 1000, 0))
+stage.setFigSize((8, 8))
+robot = ComRobotCon((500, 500, 0))
+robot.mRobotType = '2D'
+robot.isShowSenseRange = False
+robot.isDrawCommunicationRange = False 
+robot.isPlotTargetLine = False
+robot.isPlotOrientationLine = True
+robot.isPlotTrail = True
+robot.setDirection(math.pi/2)
+robot.setTarget(target)
+robot.setTargetDirection(target_direction)
+stage.addRobot(robot)
+
+stage.run()
 ```
 
 ## 4. 作者

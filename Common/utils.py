@@ -15,7 +15,8 @@ from matplotlib.collections import LineCollection
 import random
 import os
 import math
-
+from draw import ImageProc
+import cv2
 import time
 import copy
 
@@ -359,6 +360,42 @@ def getMeshGridMat(x_start, x_end, y_start, y_end, z_start=None, z_end=None, x_s
     else:
         z = np.arange(z_start, z_end, z_step)
         return np.meshgrid(x,y,z)
+    
+def getLinePointFromImage(image_dir:str, resize=None):
+    """将图片的的黑色线条细化，并提取点归一化的坐标
+
+    Args:
+        image_dir (str): _description_
+        resize (_type_, optional): 归一化后扩大的范围，（x1, x2, y1, y2). Defaults to None.
+    """    
+    image = ImageProc.readImage(image_dir)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    binary_image = ImageProc.binaryFilter(image)
+    binary_image = 255 - binary_image
+    binary_image = binary_image.astype(np.bool)
+    skeleton_image = ImageProc.skeletonize(binary_image)
+    pts = ImageProc.getPointFromImage(skeleton_image)
+    pts = pts.tolist()
+    y = np.array([i[0] for i in pts])
+    y = y / np.max(y)
+    x = np.array([i[1] for i in pts])
+    x = x / np.max(x)
+    if resize is not None:
+        diff_resize_x = resize[0] - resize[1]
+        diff_resize_y = resize[2] - resize[3]
+        x = x * diff_resize_x + resize[0]
+        y = y * diff_resize_y + resize[2]
+    
+    return x.tolist(), y.tolist()
+
+def getCircleCoordinate(degree, r=5, center=(0, 0)):
+    '''
+    计算圆上的坐标
+    degree: 以x轴正向为0度顺时针旋转
+    r: 圆的半径
+    center: 圆中心点的坐标
+    '''
+    return center[0] + r * math.cos(degree * math.pi/180), center[1] + r * math.sin(degree * math.pi/180)
 
 if __name__ == "__main__":
     for i in range(100):
