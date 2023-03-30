@@ -85,6 +85,7 @@ class ComStage:
 
         self.mElev = 30
         self.mAzim = 45
+        self.mObstacleTypeList = []     # 算作障碍物的object名称
     
     def clear(self):
         self.mRobotList = net.DiGraph()
@@ -104,7 +105,7 @@ class ComStage:
         self.mDataAx = None
         self.mMonitorGroupAx = None
 
-
+    
     @property
     def count(self):
         return ComStage.mCount
@@ -113,6 +114,15 @@ class ComStage:
     def count(self, value):
         ComStage.mCount = value
         self.mCurrentTime[0] = ComStage.mCount * self.mInterval[0]
+
+
+    def addObstacleType(self, obstacle_type:str):
+        """当作障碍物的object的名称需要添加在这里
+
+        Args:
+            obstacle_type (str): _description_
+        """        
+        self.mObstacleTypeList.append(obstacle_type)
 
     def setEnvSize(self, _size=(480, 640, 500)):
         self.mEnvSize = _size
@@ -233,6 +243,9 @@ class ComStage:
         
         # surf = self.mAx.plot_surface(x, y, z, rstride=1, cstride=1, facecolors=rgb, 
         #     linewidth=0, antialiased=False, shade=False)
+        
+        # 更新障碍物信息
+        updateObstacle_kdtree(self.mObstacleTypeList)
 
         for surf in self.mSurfaceGroup:
             surf.update()

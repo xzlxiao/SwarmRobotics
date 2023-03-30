@@ -115,7 +115,16 @@ class ComRobotCon(ComRobot):
         self.mPathPlanningControl = ComPathPlanning()
         self.mPathPlanningControl3D = ComPathPlanning3D()
         # self.mOrientationLineColor = 'blue'
-        
+    
+    def getPlanningControl(self):
+        if self.mRobotType == '2D':
+            return self.mPathPlanningControl
+        elif self.mRobotType == '3D':
+            return self.mPathPlanningControl3D
+
+    def setPlanningTarget(self, pos):
+        self.getPlanningControl().setTarget(pos)
+
     def move(self):
         """
         向目标移动一步
@@ -159,7 +168,9 @@ class ComRobotCon(ComRobot):
         
 
         if self.mStage.mStageType == '2D':
-            
+            if self.isPathPlanning:
+                if self.getPlanningControl().mPathPtList_x is not None:
+                    ax.plot(self.getPlanningControl().mPathPtList_x, self.getPlanningControl().mPathPtList_y, 'k--')
             if self.isPlotOrientationLine:
                 rot_mat = self.getRotationMat(self.mDirection)
                 # 旋转
@@ -177,8 +188,8 @@ class ComRobotCon(ComRobot):
                 ax.plot(x, y, 'b--', color='slateblue')
         elif self.mStage.mStageType == '3D':
             if self.isPathPlanning:
-                if self.mPathPlanningControl3D.mPathPtList_x is not None:
-                    ax.plot(self.mPathPlanningControl3D.mPathPtList_x, self.mPathPlanningControl3D.mPathPtList_y, self.mPathPlanningControl3D.mPathPtList_z, 'k--')
+                if self.getPlanningControl().mPathPtList_x is not None:
+                    ax.plot(self.getPlanningControl().mPathPtList_x, self.getPlanningControl().mPathPtList_y, self.getPlanningControl().mPathPtList_z, 'k--')
             if self.isPlotOrientationLine:
                 rot_mat = self.getRotationMat(self.mDirection)
                 # 旋转
@@ -204,6 +215,8 @@ class ComRobotCon(ComRobot):
 
         # if self.isPathPlanning and self.isClosedToTarget():
         if self.isPathPlanning:
+            if self.getPlanningControl().mTarget is None:
+                self.setPlanningTarget(self.mPos)
             self.pathPlanning()
 
             # print(self.mDirection)
@@ -226,25 +239,25 @@ class ComRobotCon(ComRobot):
 
     def pathPlanning(self):
         if self.mRobotType == '2D':
-            self.mPathPlanningControl.setRobotRadius(100)
+            self.getPlanningControl().setRobotRadius(75)
             obj = ComCol.getObjectByType('ComFish')
-            self.mPathPlanningControl.setObstacleList(obj)
-            self.mPathPlanningControl.setPos(self.mPos)
-            self.mPathPlanningControl.update()
-            self.mPathPlanningControl.setEnvSize(self.mStage.mEnvSize)
-            x, y, angle = self.mPathPlanningControl.getNextDest()
+            self.getPlanningControl().setObstacleList(obj)
+            self.getPlanningControl().setPos(self.mPos)
+            self.getPlanningControl().update()
+            self.getPlanningControl().setEnvSize(self.mStage.mEnvSize)
+            x, y, angle = self.getPlanningControl().getNextDest()
 
             self.setTarget((x, y, 0))
             if angle is not None:
                 self.setTargetDirection(angle)
         elif self.mRobotType == '3D':
-            self.mPathPlanningControl3D.setRobotRadius(100)
+            self.getPlanningControl().setRobotRadius(75)
             obj = ComCol.getObjectByType('ComFish')
-            self.mPathPlanningControl3D.setObstacleList(obj)
-            self.mPathPlanningControl3D.setPos(self.mPos)
-            self.mPathPlanningControl3D.update()
-            self.mPathPlanningControl3D.setEnvSize(self.mStage.mEnvSize)
-            x, y, z, angle = self.mPathPlanningControl3D.getNextDest()
+            self.getPlanningControl().setObstacleList(obj)
+            self.getPlanningControl().setPos(self.mPos)
+            self.getPlanningControl().update()
+            self.getPlanningControl().setEnvSize(self.mStage.mEnvSize)
+            x, y, z, angle = self.getPlanningControl().getNextDest()
 
             self.setTarget((x, y, z))
             if angle is not None:

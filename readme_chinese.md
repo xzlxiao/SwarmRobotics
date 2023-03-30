@@ -115,6 +115,7 @@ stage.run()
 
 - [肖镇龙](https://github.com/xzlxiao)
 - [李昌浩](https://github.com/Pekachiu)
+- 黄吉
 - 如果您想为该项目做出贡献，请参阅CONTRIBUTING
 
 [CONTRIBUTING.md]()

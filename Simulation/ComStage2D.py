@@ -12,6 +12,7 @@ from Simulation.ComStage import ComStage
 from Common.utils import *
 from Common.DrKDtree import KDtree
 from Simulation.ComRobot import ComRobot, CommunicateMethods
+from Simulation.ComObjectCollection import *
 
 
 class ComStage2D(ComStage):
@@ -40,6 +41,9 @@ class ComStage2D(ComStage):
             self.mAx.grid(False) 
             self.mAx.set_xlim(-self.mEnvSize[0], self.mEnvSize[0])
             self.mAx.set_ylim(-self.mEnvSize[1], self.mEnvSize[1])
+
+        # 更新障碍物信息
+        updateObstacle_kdtree(self.mObstacleTypeList)
         
         for surf in self.mSurfaceGroup:
             surf.update()

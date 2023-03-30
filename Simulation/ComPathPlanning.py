@@ -4,6 +4,7 @@ import math
 import time 
 import copy 
 from collections import deque
+from Simulation import ComObjectCollection
 
 # Parameters
 KP = 5.0  # attractive potential gain
@@ -63,6 +64,60 @@ def potential_field_planning(sx, sy, gx, gy, ox, oy, rr, reso=1, map_size=(-1000
             break
     return rx, ry
 
+def potential_field_planning2(sx, sy, gx, gy, rr, step_size=2):
+    '''
+    gx: goal x position [mm]
+    gy: goal y position [mm]
+    ox: obstacle x position list [mm]
+    oy: obstacle y position list [mm]
+    reso: 每单位网格的尺寸，默认为1就可以 [mm]
+    rr: robot radius [mm]
+    sx:  start x position [mm]
+    sy: start y positon [mm]
+    '''
+    # calc potential field
+    # pmap, minx, miny = calc_potential_field(gx, gy, ox, oy, rr, reso, map_size)
+    # nearest_obs_pos = ComObjectCollection.getNearestObstacle()
+    # pmap, minx, miny = calc_potential_field2(gx, gy, ox, oy, rr, reso, map_size)
+    
+    # search path
+    d = np.hypot(sx - gx, sy - gy)
+    ix = sx
+    iy = sy
+
+    rx, ry = [sx], [sy]
+    motion = get_motion_model()
+    previous_ids = deque()
+    while d >= step_size*2:
+        minp = float("inf")
+        minix, miniy = -1, -1
+        for i, _ in enumerate(motion):
+            inx = ix + motion[i][0] * step_size
+            iny = iy + motion[i][1] * step_size
+            obs_pos = ComObjectCollection.getNearestObstacle((inx, iny, 0))
+            if obs_pos is not None:
+                ox, oy, _ = obs_pos[0][0]
+            else: 
+                ox = oy = None
+            # print(a)
+            # ox, oy, _ = a[0][0]
+            p = calc_potential_field3(inx, iny, gx, gy, ox, oy, rr)
+            if minp > p:
+                minp = p
+                minix = inx
+                miniy = iny
+        ix = minix
+        iy = miniy
+        # print(ix, iy, xp, yp)
+        # d = np.hypot(gx - ix, gy - iy)
+        rx.append(ix)
+        ry.append(iy)
+
+        if (oscillations_detection(previous_ids, ix, iy)):
+            # print("Oscillation detected at ({},{})!".format(ix, iy))
+            break
+    return rx, ry
+
 def calc_potential_field(gx, gy, ox, oy, rr, reso=1, map_size=(-1000, -1000, 1000, 1000)):
     '''
     gx: goal x position [mm]
@@ -88,7 +143,7 @@ def calc_potential_field(gx, gy, ox, oy, rr, reso=1, map_size=(-1000, -1000, 100
 
         for iy in range(yw):
             y = iy * reso + miny
-            if gx is not None or gy is not None:
+            if gx is not None and gy is not None:
                 ug = calc_attractive_potential(x, y, gx, gy)
                 uo = calc_repulsive_potential(x, y, ox, oy, rr)
                 uf = ug + uo
@@ -141,21 +196,33 @@ def calc_potential_field2(gx, gy, ox, oy, rr, reso=1, map_size=(-1000, -1000, 10
         uf = uo
     pmap = uf.T.tolist()
 
-    # for ix in range(xw):
-    #     x = ix * reso + minx
-
-    #     for iy in range(yw):
-    #         y = iy * reso + miny
-    #         if gx is not None or gy is not None:
-    #             ug = calc_attractive_potential(x, y, gx, gy)
-    #             uo = calc_repulsive_potential(x, y, ox, oy, rr)
-    #             uf = ug + uo
-    #         else:
-    #             uo = calc_repulsive_potential(x, y, ox, oy, rr)
-    #             uf = uo
-    #         pmap[ix][iy] = uf
-
     return pmap, minx, miny
+
+def calc_potential_field3(x, y, gx, gy, ox, oy, rr):
+    '''
+    gx: goal x position [mm]
+    gy: goal y position [mm]
+    ox: obstacle x position list [mm]
+    oy: obstacle y position list [mm]
+    reso: 每单位网格的尺寸，默认为1就可以 [mm]
+    rr: robot radius [mm]
+    sx:  start x position [mm]
+    sy: start y positon [mm]
+    map_size: 地图尺寸 [mm]
+    '''
+    # print(x, y, gx, gy, ox, oy)
+    if gx is not None or gy is not None:
+        ug = calc_attractive_potential(x, y, gx, gy)
+        uo = calc_repulsive_potential3(x, y, ox, oy, rr)
+        uf = ug + uo
+        # if uo > 0.01:
+        #     print(ug, uo)
+    else:
+        uo = calc_repulsive_potential3(x, y, ox, oy, rr)
+        uf = uo
+    p = uf
+
+    return p
 
 
 def calc_attractive_potential(x, y, gx, gy):
@@ -185,6 +252,10 @@ def calc_repulsive_potential(x, y, ox, oy, rr):
 
 
 def calc_repulsive_potential2(x, y, ox, oy, rr):
+    ret = np.zeros_like(x, dtype=float)
+    if len(ox) ==  0 or len(oy) == 0:
+        return ret
+
     # search nearest obstacle
     minid = np.zeros_like(x, dtype=int)
     minid[:] = -1
@@ -194,20 +265,42 @@ def calc_repulsive_potential2(x, y, ox, oy, rr):
         d = np.hypot(x - ox[i], y - oy[i])
         minid[dmin>d] = i
         dmin[dmin>d] = d[dmin>d]
-        
-    # print(dmin)
-    # print(minid.shape)
 
     # calc repulsive potential
     ox_min_mat = np.array(ox)[minid]
     oy_min_mat = np.array(oy)[minid]
     dq = np.hypot(x - ox_min_mat, y - oy_min_mat)
-    ret = np.zeros_like(dq, dtype=float)
+    
     dq[dq<=0.1] = 0.1
     ret[dq<=rr] = 3 * ETA * (1.0 / dq[dq<=rr] - 1.0 / rr) ** 0.3
     return ret
 
+def calc_repulsive_potential3(x, y, ox, oy, rr):
+    """计算斥力场
 
+    Args:
+        x (_type_): _description_
+        y (_type_): _description_
+        ox (_type_): 最近障碍物的x坐标
+        oy (_type_): 最近障碍物的y坐标
+        rr (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    if ox is None or oy is None:
+        return 0.0
+    # calc repulsive potential
+    dq = np.hypot(x - ox, y - oy)
+    
+    if dq <= rr:
+        # print(dq)
+        if dq <= 0.1:
+            dq = 0.1
+        ret = 3 * ETA * (1.0 / dq - 1.0 / rr) ** 0.1
+        return ret
+    else:
+        return 0.0
 
 def get_motion_model():
     # dx, dy
@@ -264,24 +357,21 @@ class ComPathPlanning:
         self.mObstacleList = obstacle_list
 
     def update(self):
-        obstacle_pos_group = [obstacle.mPos for obstacle in self.mObstacleList]
-        obstacle_pos_x_list = [i[0] for i in obstacle_pos_group]
-        obstacle_pos_y_list = [i[1] for i in obstacle_pos_group]
+        # obstacle_pos_group = [obstacle.mPos for obstacle in self.mObstacleList]
+        # obstacle_pos_x_list = [i[0] for i in obstacle_pos_group]
+        # obstacle_pos_y_list = [i[1] for i in obstacle_pos_group]
         gx, gy = self.mTarget[0:2]
-        ox = obstacle_pos_x_list
-        oy = obstacle_pos_y_list
-        reso = 10
+        # ox = obstacle_pos_x_list
+        # oy = obstacle_pos_y_list
         rr = self.mRobotRadius
         sx, sy = self.mPos[0:2]
-        self.mPathPtList_x, self.mPathPtList_y = potential_field_planning(
+        self.mPathPtList_x, self.mPathPtList_y = potential_field_planning2(
             sx, 
             sy, 
             gx, 
             gy,
-            ox, 
-            oy, 
-            rr, 
-            reso)
+            rr,
+            10)
         
     def getNextDest(self):
         '''

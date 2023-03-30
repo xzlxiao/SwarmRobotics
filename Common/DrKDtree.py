@@ -25,6 +25,9 @@ class KDtree():
         self.tree = skl_kdtree(kd_points)
         self.mPoints = points
         self.mLen = len(points)
+
+    def getPoints(self, inds):
+        return np.array([self.mPoints[i] for i in inds])
     
     def formatPoint(self, point):
         pt = point.copy()
@@ -48,9 +51,18 @@ class KDtree():
         :param k:
         :return: dist ind
         """
+        point = np.array(point)
         point = self.formatPoint(point)
 
         return self.tree.query(point, k)
+    
+    # def queryMat(self, point_mat):
+    #     """
+    #     查询与point_mat点集中每个点最近的1个点，返回对应的点集
+    #     :param point_mat: 必须是n x 3的矩阵
+    #     :return: dist ind
+    #     """
+    #     return self.tree.query(point_mat, 1)
 
     def query_radius(self, point, r=1.0):
         """

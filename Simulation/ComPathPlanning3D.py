@@ -5,6 +5,7 @@ import time
 import copy 
 from collections import deque
 from Simulation.ComPathPlanning import ComPathPlanning
+from Simulation import ComObjectCollection
 
 import sys 
 print(sys.path)
@@ -113,6 +114,50 @@ def potential_field_planning(sx, sy, sz, gx, gy, gz, ox, oy, oz, rr, reso=1, map
             break
     return rx, ry, rz
 
+def potential_field_planning2(sx, sy, sz, gx, gy, gz, rr, step_size=2):
+    d = np.hypot(sx - gx, sy - gy)
+    ix = sx
+    iy = sy
+    iz = sz
+
+    rx, ry, rz = [sx], [sy], [sz]
+    motion = get_motion_model()
+    previous_ids = deque()
+    while d >= step_size*2:
+        minp = float("inf")
+        minix, miniy, miniz = -1, -1, -1
+        for i, _ in enumerate(motion):
+            inx = ix + motion[i][0] * step_size
+            iny = iy + motion[i][1] * step_size
+            inz = iz + motion[i][2] * step_size
+            obs_pos = ComObjectCollection.getNearestObstacle((inx, iny, inz))
+            # print(obs_pos)
+            if obs_pos is not None:
+                ox, oy, oz = obs_pos[0][0]
+            else: 
+                ox = oy = oz = None
+            # print(a)
+            # ox, oy, _ = a[0][0]
+            
+            p = calc_potential_field3(inx, iny, inz, gx, gy, gz, ox, oy, oz, rr)
+            if minp > p:
+                minp = p
+                minix = inx
+                miniy = iny
+                miniz = inz
+        ix = minix
+        iy = miniy
+        iz = miniz
+        # print(ix, iy, xp, yp)
+        # d = np.hypot(gx - ix, gy - iy)
+        rx.append(ix)
+        ry.append(iy)
+        rz.append(iz)
+
+        if (oscillations_detection(previous_ids, ix, iy, iz)):
+            # print("Oscillation detected at ({},{})!".format(ix, iy))
+            break
+    return rx, ry, rz
 
 def calc_potential_field_mat(gx, gy, gz, ox, oy, oz, rr, reso=1, map_size=(-1000, -1000, -1000, 1000, 1000, 1000)):
     '''
@@ -166,6 +211,33 @@ def calc_potential_field_mat(gx, gy, gz, ox, oy, oz, rr, reso=1, map_size=(-1000
 
     return pmap, minx, miny, minz
 
+def calc_potential_field3(x, y, z, gx, gy, gz, ox, oy, oz, rr):
+    '''
+    gx: goal x position [mm]
+    gy: goal y position [mm]
+    ox: obstacle x position list [mm]
+    oy: obstacle y position list [mm]
+    reso: 每单位网格的尺寸，默认为1就可以 [mm]
+    rr: robot radius [mm]
+    sx:  start x position [mm]
+    sy: start y positon [mm]
+    map_size: 地图尺寸 [mm]
+    '''
+    # print(x, y, gx, gy, ox, oy)
+    if gx is not None and gy is not None and gz is not None:
+        ug = calc_attractive_potential(x, y, z, gx, gy, gz)
+
+        uo = calc_repulsive_potential3(x, y, z, ox, oy, oz, rr)
+        uf = ug + uo
+        # if uo > 0.01:
+        #     print(ug, uo)
+    else:
+        uo = calc_repulsive_potential3(x, y, z, ox, oy, oz, rr)
+        uf = uo
+    p = uf
+
+    return p
+
 
 def calc_attractive_potential(x, y, z, gx, gy, gz):
     return 0.5 * KP * math.sqrt((x - gx)**2+(y - gy)**2+(z - gz)**2)
@@ -194,6 +266,9 @@ def calc_repulsive_potential(x, y, z, ox, oy, oz, rr):
         return 0.0 
 
 def calc_repulsive_potential_mat(x, y, z, ox, oy, oz, rr):
+    ret = np.zeros_like(x, dtype=float)
+    if len(ox) ==  0 or len(oy) == 0 or len(oz):
+        return ret
     # search nearest obstacle
     minid = np.zeros_like(x, dtype=int)
     minid[:] = -1
@@ -203,9 +278,6 @@ def calc_repulsive_potential_mat(x, y, z, ox, oy, oz, rr):
         d = np.sqrt((x - ox[i])**2+(y - oy[i])**2+(z - oz[i])**2)
         minid[dmin>d] = i
         dmin[dmin>d] = d[dmin>d]
-        
-    # print(dmin)
-    # print(minid.shape)
 
     # calc repulsive potential
     ox_min_mat = np.array(ox)[minid]
@@ -213,14 +285,38 @@ def calc_repulsive_potential_mat(x, y, z, ox, oy, oz, rr):
     oz_min_mat = np.array(oz)[minid]
 
     dq = np.sqrt((x - ox_min_mat)**2+(y - oy_min_mat)**2+(z - oz_min_mat)**2)
-    ret = np.zeros_like(dq, dtype=float)
     dq[dq<=1] = 4#0.1
 
-    # print(dq[100,100,100])
     ret[dq<=rr] = 1 * ETA_MAT * (1.0 / dq[dq<=rr] - 1.0 / rr) ** 0.3#3 0.1
-    # print(ret[95:105,95:105,100])
     return ret
 
+
+
+def calc_repulsive_potential3(x, y, z, ox, oy, oz, rr):
+    """计算斥力场
+
+    Args:
+        x (_type_): _description_
+        y (_type_): _description_
+        ox (_type_): 最近障碍物的x坐标
+        oy (_type_): 最近障碍物的y坐标
+        rr (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    if ox is None or oy is None or oz is None:
+        return 0.0
+    # calc repulsive potential
+    dq = math.sqrt((x - ox)**2+(y - oy)**2+(z - oz)**2)
+    
+    if dq <= rr:
+        if dq <= 0.1:
+            dq = 0.1
+        ret = 3 * ETA_MAT * (1.0 / dq - 1.0 / rr) ** 0.3
+        return ret
+    else:
+        return 0.0
 
 def get_motion_model():
     # dx, dy
@@ -262,7 +358,6 @@ def get_motion_model():
 def oscillations_detection(previous_ids, xp, yp, zp, path=[]):
     previous_ids.append(( xp, yp, zp))
     path.append(( xp, yp, zp))
-    # print('Path: ', path, '\n\n')
 
     if (len(previous_ids) > OSCILLATIONS_DETECTION_LENGTH):
         previous_ids.popleft()
@@ -271,7 +366,7 @@ def oscillations_detection(previous_ids, xp, yp, zp, path=[]):
     previous_ids_set = set()
     for index in previous_ids:
         if index in previous_ids_set:
-            print('Path: ', path, '\n\n')
+            # print('Path: ', path, '\n\n')
             return True
         else:
             previous_ids_set.add(index)
@@ -315,18 +410,15 @@ class ComPathPlanning3D(ComPathPlanning):
         reso = 20
         rr = self.mRobotRadius
         sx, sy, sz = self.mPos[0:3]
-        self.mPathPtList_x, self.mPathPtList_y, self.mPathPtList_z = potential_field_planning(
+        self.mPathPtList_x, self.mPathPtList_y, self.mPathPtList_z = potential_field_planning2(
             sx, 
             sy, 
             sz,
             gx, 
             gy,
             gz,
-            ox, 
-            oy, 
-            oz,
             rr, 
-            reso)
+            15)
         
     def getNextDest(self):
         '''
