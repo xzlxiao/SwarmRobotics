@@ -240,26 +240,28 @@ class ComRobotCon(ComRobot):
     def pathPlanning(self):
         if self.mRobotType == '2D':
             self.getPlanningControl().setRobotRadius(75)
-            obj = ComCol.getObjectByType('ComFish')
-            self.getPlanningControl().setObstacleList(obj)
             self.getPlanningControl().setPos(self.mPos)
             self.getPlanningControl().update()
             self.getPlanningControl().setEnvSize(self.mStage.mEnvSize)
             x, y, angle = self.getPlanningControl().getNextDest()
 
-            self.setTarget((x, y, 0))
+            if x is None or y is None:
+                self.setTarget(self.mPos)
+            else:
+                self.setTarget((x, y, 0))
             if angle is not None:
                 self.setTargetDirection(angle)
         elif self.mRobotType == '3D':
             self.getPlanningControl().setRobotRadius(75)
-            obj = ComCol.getObjectByType('ComFish')
-            self.getPlanningControl().setObstacleList(obj)
             self.getPlanningControl().setPos(self.mPos)
             self.getPlanningControl().update()
             self.getPlanningControl().setEnvSize(self.mStage.mEnvSize)
             x, y, z, angle = self.getPlanningControl().getNextDest()
 
-            self.setTarget((x, y, z))
+            if x is None or y is None:
+                self.setTarget(self.mPos)
+            else:
+                self.setTarget((x, y, z))
             if angle is not None:
                 self.setTargetDirection(angle)
 

@@ -32,6 +32,7 @@ class ComFish(ComObject):
         self.mObjectType = "ComFish"       # 用于标识当前物体类别
         self.isVisible = True 
         self.delayVisibleCount = 0
+        self.isPlotTargetLine = False
 
     @property
     def fish_count(self):

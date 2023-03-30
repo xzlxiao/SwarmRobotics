@@ -5,6 +5,7 @@ import time
 import copy 
 from collections import deque
 from Simulation import ComObjectCollection
+import random
 
 # Parameters
 KP = 5.0  # attractive potential gain
@@ -335,11 +336,15 @@ class ComPathPlanning:
     def __init__(self) -> None:
         self.mTarget = None
         self.mPos = None 
-        self.mObstacleList = None
         self.mRobotRadius = 20  
         self.mPathPtList_x = None 
         self.mPathPtList_y = None 
         self.mEnvSize = None
+        self.mStride = 10   # 设置梯度下降时搜索的步长，较大的值可以更好的跳出局部极值，但路径规划越不精细
+        self.isRandomLeapOn = True   # 是否可以通过随机移动跳出局部极值，默认可以
+        self.mRandomLeapThreshold = 3  # 跳出极值判断的步长倍数
+        self.mTargetBackup = None
+        self.mRandomMoveRange = 30      # 随机移动范围的步长倍数
     
     def setPos(self, pos):
         self.mPos = pos 
@@ -353,8 +358,46 @@ class ComPathPlanning:
     def setRobotRadius(self, radius):
         self.mRobotRadius = radius
 
-    def setObstacleList(self, obstacle_list: list):
-        self.mObstacleList = obstacle_list
+    def setStride(self, stride_len):
+        self.mStride = stride_len
+
+    def isRandomMove(self):
+        '''
+        是否需要通过随机移动跳出局部极值
+        '''
+        if not self.isRandomLeapOn:
+            return False 
+        
+        x = self.mPathPtList_x[-1]
+        y = self.mPathPtList_y[-1]
+        if myUtils.distance((x, y), self.mTarget[0:2]) > self.mStride*self.mRandomLeapThreshold and self.mTargetBackup is None:
+            return True 
+        else:
+            return False
+    
+    def randomMove(self):
+        x = 0
+        y = 0
+        multi_stride = self.mStride * self.mRandomMoveRange
+        range_x = [self.mPos[0]-multi_stride, self.mPos[0]+multi_stride]
+        range_y = [self.mPos[1]-multi_stride, self.mPos[1]+multi_stride]
+        if self.mEnvSize is not None:
+            # 边界判断
+            minx = -self.mEnvSize[0]
+            maxx = self.mEnvSize[0]
+            miny = -self.mEnvSize[1]
+            maxy = self.mEnvSize[1]
+            if range_x[0] < minx:
+                range_x[0] = minx 
+            if range_x[1] > maxx:
+                range_x[1] = maxx 
+            if range_y[0] < miny:
+                range_y[0] = miny
+            if range_y[1] > maxy:
+                range_y[1] = maxy
+        x = random.uniform(range_x[0], range_x[1])
+        y = random.uniform(range_y[0], range_y[1])
+        self.setTarget((x, y, 0))
 
     def update(self):
         # obstacle_pos_group = [obstacle.mPos for obstacle in self.mObstacleList]
@@ -371,7 +414,7 @@ class ComPathPlanning:
             gx, 
             gy,
             rr,
-            10)
+            self.mStride)
         
     def getNextDest(self):
         '''
@@ -379,11 +422,20 @@ class ComPathPlanning:
         x, y, angle
         '''
         pt_num = 2
-        if len(self.mPathPtList_x) > 3:
+        if len(self.mPathPtList_x) > 5:
             x1, x2 = self.mPathPtList_x[pt_num:pt_num+2]
             y1, y2 = self.mPathPtList_y[pt_num:pt_num+2]
             v = (x2-x1, y2-y1)
             angle = myUtils.angle_with_x_axis(v)
             return self.mPathPtList_x[pt_num], self.mPathPtList_y[pt_num], angle
+        elif self.isRandomMove():
+            if self.mTargetBackup is None:
+                self.mTargetBackup = copy.copy(self.mTarget)
+            self.randomMove()
+            return None, None, None
+        elif self.mTargetBackup is not None:
+            self.mTarget =  copy.copy(self.mTargetBackup)
+            self.mTargetBackup = None
+            return None, None, None
         else:
             return self.mTarget[0], self.mTarget[1], None

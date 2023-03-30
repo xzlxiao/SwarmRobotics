@@ -19,3 +19,5 @@ from Simulation.ComRobotAF_niche_markov_Global import ComRobotAF_niche_markov_Gl
 from Simulation.ComRobotPSO import ComRobotPSO
 from Simulation.ComRobotPSO_niche import ComRobotPSO_niche
 from Simulation.ComRobotPSO_niche_markov import ComRobotPSO_niche_markov
+from Simulation.ComRobotCon import ComRobotCon
+from Simulation.ComRobotSenseDepict import ComRobotSenseDepict

@@ -381,8 +381,8 @@ def getLinePointFromImage(image_dir:str, resize=None):
     x = np.array([i[1] for i in pts])
     x = x / np.max(x)
     if resize is not None:
-        diff_resize_x = resize[0] - resize[1]
-        diff_resize_y = resize[2] - resize[3]
+        diff_resize_x = resize[1] - resize[0]
+        diff_resize_y = resize[3] - resize[2]
         x = x * diff_resize_x + resize[0]
         y = y * diff_resize_y + resize[2]
     

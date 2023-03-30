@@ -75,6 +75,17 @@ python Example/exm_路径规划-3D.py
 
 ![](Resource/AFSA.gif)
 
+- 势场类路径规划方法的局部极值问题
+
+![](Resource/local_extremum1.gif)
+
+- 随机跳出局部极值方法
+
+![](Resource/local_extremum_leap1.gif)
+
+- 感知受限的路径规划
+
+![](Resource/sense_limited.gif)
 
 ## 3. 示例
 - 下面是一个简单的示例，它使用路径跟随算使机器人从当前位置移动的目标位置和姿态（target， target_direction）：

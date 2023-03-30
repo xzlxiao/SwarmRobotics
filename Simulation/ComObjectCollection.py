@@ -18,9 +18,10 @@ def updateObstacle_kdtree(ObstacleTypeList:list):
         for obstacle_name in ObstacleTypeList:
             obs_list = getPosByType(obstacle_name)
             pos_list.extend(obs_list)
-        pos_list = np.array(pos_list)
-        # print(pos_list)
-        obstacle_kdtree = KDtree(pos_list)
+        if len(pos_list) > 0:
+            pos_list = np.array(pos_list)
+            # print(pos_list)
+            obstacle_kdtree = KDtree(pos_list)
 
 def getNearestObstacle(pos):
     global obstacle_kdtree

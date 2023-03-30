@@ -221,11 +221,13 @@ class ComRobot(ComObject):
         '''
         obj_in_sense_length = None
         obj_in_sense_length = getObjectInRange(self.mPos, self.mSenseDistance)      # 感知距离以内的机器人
-        
+        ret = []
+
         # 挑选出感知夹角以内的机器人，即xy平面内的偏航角度正负self.mSenseAngle以内，与xy平面的夹角正负self.mSenseAngle以内
         for robot in obj_in_sense_length:
-            angle_in_xy = ComObject.getAngleBetweenXandVector(robot.pos, self.pos, plat='xy') - self.mDirection     # xy平面内的偏航角度
-            angle_with_xy = ComObject.getAngleBetweenXandVector(robot.pos, self.pos, plat='o-xy')   # 与xy平面的夹角
+            # angle_in_xy = ComObject.getAngleBetweenXandVector(robot.pos, self.pos, plat='xy') - self.mDirection
+            angle_in_xy = ComObject.getAngleBetweenXandVector(self.pos, robot.pos, plat='xy') - self.mDirection     # xy平面内的偏航角度
+            angle_with_xy = ComObject.getAngleBetweenXandVector(self.pos, robot.pos, plat='o-xy')   # 与xy平面的夹角
             if angle_in_xy > math.pi:
                 angle_in_xy = 2*math.pi - angle_in_xy
             if angle_in_xy < -math.pi:
@@ -235,14 +237,15 @@ class ComRobot(ComObject):
             if angle_with_xy < -math.pi:
                 angle_with_xy = 2*math.pi + angle_with_xy
 
+            # angle_in_xy = math.pi - angle_in_xy
             is_robot_sensed = False
             if self.mRobotType == '3D':
-                if angle_in_xy >= -self.mSenseAngle and angle_in_xy <= self.mSenseAngle:
-                    if angle_with_xy >= -self.mSenseAngle and angle_with_xy <= self.mSenseAngle:
+                if angle_in_xy >= -self.mSenseAngle/2 and angle_in_xy <= self.mSenseAngle/2:
+                    if angle_with_xy >= -self.mSenseAngle/2 and angle_with_xy <= self.mSenseAngle/2:
                         is_robot_sensed = True
             elif self.mRobotType == '2D':
-                if angle_in_xy >= -self.mSenseAngle and angle_in_xy <= self.mSenseAngle:
-                    is_robot_sensed = True
+                if angle_in_xy >= -self.mSenseAngle/2 and angle_in_xy <= self.mSenseAngle/2:
+                    is_robot_sensed = True 
 
             if is_robot_sensed:
                 sense_obj = ObjectInfo()
@@ -250,6 +253,8 @@ class ComRobot(ComObject):
                 sense_obj.type = robot.mObjectType
                 sense_obj.pos = robot.pos
                 self.mSenseInfo.append(sense_obj)
+                ret.append(robot)
+        return ret
 
     def sense(self):
         super().sense()

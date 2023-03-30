@@ -7,9 +7,7 @@ from collections import deque
 from Simulation.ComPathPlanning import ComPathPlanning
 from Simulation import ComObjectCollection
 
-import sys 
-print(sys.path)
-sys.path.append('D:\桌面\Epuck\GRN')
+
 
 
 
@@ -374,40 +372,42 @@ def oscillations_detection(previous_ids, xp, yp, zp, path=[]):
 
 class ComPathPlanning3D(ComPathPlanning):
     def __init__(self) -> None:
-        self.mTarget = None
-        self.mPos = None 
-        self.mObstacleList = None
-        self.mRobotRadius =  20 
-        self.mPathPtList_x = None 
-        self.mPathPtList_y = None 
+        super(ComPathPlanning3D, self).__init__()
+        # self.mTarget = None
+        # self.mPos = None 
+        # self.mObstacleList = None
+        # self.mRobotRadius =  20 
+        # self.mPathPtList_x = None 
+        # self.mPathPtList_y = None 
+        self.mStride = 15   # 设置梯度下降时搜索的步长，较大的值可以更好的跳出局部极值，但路径规划越不精细
         self.mPathPtList_z = None 
-        self.mEnvSize = None
+        # self.mEnvSize = None
     
-    def setPos(self, pos):
-        self.mPos = pos 
+    # def setPos(self, pos):
+    #     self.mPos = pos 
         
-    def setEnvSize(self, _size):
-        self.mEnvSize = _size
+    # def setEnvSize(self, _size):
+    #     self.mEnvSize = _size
 
-    def setTarget(self, target: tuple):
-        self.mTarget = target
+    # def setTarget(self, target: tuple):
+    #     self.mTarget = target
 
-    def setRobotRadius(self, radius):
-        self.mRobotRadius = radius
+    # def setRobotRadius(self, radius):
+    #     self.mRobotRadius = radius
 
-    def setObstacleList(self, obstacle_list: list):
-        self.mObstacleList = obstacle_list
+    # def setObstacleList(self, obstacle_list: list):
+    #     self.mObstacleList = obstacle_list
 
     def update(self):
-        obstacle_pos_group = [obstacle.mPos for obstacle in self.mObstacleList]
-        obstacle_pos_x_list = [i[0] for i in obstacle_pos_group]
-        obstacle_pos_y_list = [i[1] for i in obstacle_pos_group]
-        obstacle_pos_z_list = [i[2] for i in obstacle_pos_group]
+        # obstacle_pos_group = [obstacle.mPos for obstacle in self.mObstacleList]
+        # obstacle_pos_x_list = [i[0] for i in obstacle_pos_group]
+        # obstacle_pos_y_list = [i[1] for i in obstacle_pos_group]
+        # obstacle_pos_z_list = [i[2] for i in obstacle_pos_group]
         gx, gy, gz = self.mTarget[0:3]
-        ox = obstacle_pos_x_list
-        oy = obstacle_pos_y_list
-        oz = obstacle_pos_z_list
-        reso = 20
+        # ox = obstacle_pos_x_list
+        # oy = obstacle_pos_y_list
+        # oz = obstacle_pos_z_list
+        # reso = 20
         rr = self.mRobotRadius
         sx, sy, sz = self.mPos[0:3]
         self.mPathPtList_x, self.mPathPtList_y, self.mPathPtList_z = potential_field_planning2(
@@ -418,7 +418,7 @@ class ComPathPlanning3D(ComPathPlanning):
             gy,
             gz,
             rr, 
-            15)
+            self.mStride)
         
     def getNextDest(self):
         '''
