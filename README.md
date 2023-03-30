@@ -20,7 +20,7 @@ To install the project, you need to perform the following steps:
 ```bash
 git clone https://github.com/xzlxiao/SwarmRobotics.git
 ```
- - Installation dependencies:
+ - Install Dependencies:
 
 
 ```bash
@@ -80,6 +80,18 @@ The following example image is a gif and may not autoplay in some browsers.
 
 ![](Resource/AFSA.gif)
 
+*   Local Extreme Value Problem of Potential Field Class Path Planning Method
+
+![](Resource/local_extremum1.gif)
+
+*   Random Bounce Local Extreme Method
+
+![](Resource/local_extremum_leap1.gif)
+
+*   Path Planning with Perceptual Restrictions
+
+![](Resource/sense_limited.gif)
+
 ## 3. Example
 
 *   Here's a simple example that uses a path-following computer to move the robot from its current position to its target position and posture (target, target\_direction):
@@ -124,6 +136,7 @@ Contributors:
 
 *   [肖镇龙](https://github.com/xzlxiao)
 *   [李昌浩](https://github.com/Pekachiu)
+*   黄吉
 *   If you want to contribute to the project, see contributing
 
 [CONTRIBUTING.md]()
