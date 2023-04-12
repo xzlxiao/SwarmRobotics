@@ -35,13 +35,15 @@ codes, verts = loadSVG(path_list, translate_list)
 
 class ComObject:
     update_count = 0
+
+    # This method initializes the object's attributes when it is created.
     def __init__(self) -> None:
         self.mId = -1
         self.mPos = np.array([0, 0, 0], dtype=np.float32)
         self.mOrientation = np.zeros((3, 3), dtype=np.float)
         self.mTarget = np.array(self.mPos, dtype=np.float32)
         self.mTargetOrientation = np.array(self.mOrientation, dtype=np.float)
-        self.mInterval = []  # 两次迭代间隔的时间
+        self.mInterval = []  # List of time intervals between iterations
         self.mSpeed = 300
         self.mColor = 'red'
         self.mShape = 'circle_line'
@@ -54,26 +56,67 @@ class ComObject:
         self.mPopulation = None 
         self.mObstacle = None 
         self.mAx = None
-        self.mDirection = 0.0     # 弧度
+        self.mDirection = 0.0     # Radians
         self.mTargetDirection = None
         self.isPlotTargetLine = True
         self.mStage = None
         self.mTrail = [[], [], []]
         self.isPlotTrail = False
-        self.mObjectType = "ComObject"       # 用于标识当前物体类别
-        self.mIterations = 0        # 迭代次数
+        self.mObjectType = "ComObject"       # Marks the type of object
+        self.mIterations = 0        # Number of iterations
         self.mRobotType = '3D'
-        self.mTargetLineLen = -1  # 目标线如果小于0，则连接到目的地，否则只显示一段
+        self.mTargetLineLen = -1  # Target line length. If < 0, connects to destination; otherwise, only displays a section
         self.mTrailLineColor = (0, 0, 1, 0.1)
         self.mTrailLineAlpha = 0.5
+        self.mMessage = ''      # Special information for saving records
+
+
+    # This method is called getMessage() and belongs to a class.
+    # The purpose of the method is to return the value of mMessage.
+
+    def getMessage(self):
+        """_summary_
+        Public method of the class, returns the value of mMessage.
+        mMessage is a user-defined message that can be used to store intermediate data during simulation.
+
+        Returns:
+            string: The current instance's mMessage string
+        """
+        return self.mMessage 
+
+
+    def setMessage(self, message):
+        """_summary_
+        Public method of the class, used to set the value of mMessage.
+
+        Args:
+            message (string): message is a user-defined message that can be used to store intermediate data during simulation.
+        """        
+        # Set the value of the instance variable mMessage to the passed message argument.
+        self.mMessage = message
+
+
 
     def setRobotType(self, robot_type='3D'):
         self.mRobotType = robot_type
 
+    # This method is called setTrailLineColor() and belongs to a class.
+    # The purpose of the method is to set the color of the robot's motion trail.
     def setTrailLineColor(self, color=(0, 0, 1, 0.1)):
+        """
+        Set the color used for drawing the robot's movement trail.
+
+        Args:
+            color (tuple, optional): A tuple representing the RGBA color value to use for the trail. 
+                Defaults to (0, 0, 1, 0.1).
+            """        
+        # Set the instance variable 'mTrailLineColor' to the passed color argument
         self.mTrailLineColor = color 
+        
+        # If the color argument is a tuple and its length is at least 4, set the alpha value of the trail line
         if type(color) == tuple and len(color)>=4:
             self.mTrailLineAlpha = color[3]
+
     
     def setTrailLineAlpha(self, alpha):
         self.mTrailLineAlpha = alpha
@@ -98,44 +141,30 @@ class ComObject:
         self.mDirection = direction
         if self.mTargetDirection is None:
             self.mTargetDirection = direction
-
-    # @direction.setter
-    # def direction(self, angle: float):
-    #     '''
-    #     @brief 设置角度
-    #     @param angle: 弧度
-    #     '''
-    #     self._direction = angle
-    #     rotation_mat = np.array(
-    #         [[math.cos(angle), -math.sin(angle)],[math.sin(angle), math.cos(angle)]]
-    #     )
-    #     self.mPos[0:2] = np.matmul(self.mPos[0:2], rotation_mat)
-        
+            
     @staticmethod
     def getAngleBetweenXandVector(pt1, pt2, plat='xy'):
         '''
-        @brief 获得两点形成的向量与x轴之间的夹角（二维）
-        @param pt1: 起始点
-        @param pt2: 终止点
+        @brief: Calculate angle between two points and x-axis.
+        @param pt1: Starting point.
+        @param pt2: Ending point.
+        @param plat: Plane on which the angle is to be calculated.
         '''
 
-        deltaX = pt2[0] - pt1[0]
-        deltaY = pt2[1] - pt1[1]
-        deltaZ = 0
+        deltaX, deltaY, deltaZ = pt2[0] - pt1[0], pt2[1] - pt1[1], 0
+        
         if len(pt1) == 3 and len(pt2) == 3:
             deltaZ = pt2[2] - pt1[2]
         
-        if plat=='xy':  # xy平面内与x轴的夹角
-            return math.atan2(deltaY, deltaX)
-        elif plat=='xz': # xz平面内与x轴的夹角
-            return math.atan2(deltaZ, deltaX)
-        elif plat=='yz': # yz平面内与y轴的夹角
-            return math.atan2(deltaZ, deltaY) 
-        elif plat=='o-xy': # 与xy平面的夹角
-            deltaXY = math.sqrt(math.pow(deltaX, 2) + math.pow(deltaY, 2))
-            return math.atan2(deltaZ, deltaXY) 
-        else:
+        # Define a dictionary to map input strings to their corresponding mathematical functions. 
+        # As there were multiple if-else conditions in the original code, it can be made more concise by using a dictionary.
+        planes = {'xy':(deltaY, deltaX), 'xz':(deltaZ, deltaX), 'yz':(deltaZ, deltaY), 'o-xy':(math.sqrt(deltaX**2 + deltaY**2), deltaZ)}
+        
+        try:
+            return math.atan2(*planes[plat])
+        except KeyError:  # Invalid 'plat' parameter.
             return None
+
 
     def setColor(self, color=(1.0, .0, .0, 1.0)):
         self.mColor = color
@@ -243,6 +272,7 @@ class ComObject:
         """
         pass 
 
+
     def distance(self, pt1, pt2):
         """
         计算两点间的距离
@@ -251,12 +281,12 @@ class ComObject:
         :return:
         """
         if self.mRobotType == '3D':
-            pt1 = np.array(pt1[0:3], dtype=np.float32)
-            pt2 = np.array(pt2[0:3], dtype=np.float32)
+            dim = 3
         elif self.mRobotType == '2D':
-            pt1 = np.array(pt1[0:2], dtype=np.float32)
-            pt2 = np.array(pt2[0:2], dtype=np.float32)
-        return np.linalg.norm(pt2 - pt1, ord=2)
+            dim = 2
+
+        return np.linalg.norm(np.array(pt2[:dim]) - np.array(pt1[:dim]))
+
 
     def move(self):
         """
@@ -346,6 +376,8 @@ class ComObject:
         self.drawOnFigure(ax)
 
     def chooseRandomTarget(self):
+        """_summary_
+        """        
         range_x = (-100, 100)
         range_y = (-100, 100)
         range_z = (-100, 100)

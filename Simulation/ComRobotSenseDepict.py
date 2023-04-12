@@ -30,9 +30,13 @@ class ComRobotSenseDepict(ComRobotCon):
 
     def setUndetectedObjType(self, obj_type):
         self.mUndetected_obj_type = obj_type
+        if obj_type not in self.mProcessedInfo:
+            self.mProcessedInfo[obj_type] = {}
 
     def setDetectedObjType(self, obj_type):
         self.mDetected_obj_type = obj_type
+        if obj_type not in self.mProcessedInfo:
+            self.mProcessedInfo[obj_type] = {}
 
     def sense(self):
         super().sense()
@@ -43,10 +47,10 @@ class ComRobotSenseDepict(ComRobotCon):
                 obj.setColor(self.mDetectedColor)
                 obj.setRadius(obj.mRadius+5)
 
+    
     def update(self):
         self.sense()
-        if self.isCommunicating:
-            self.processInfo()
+        self.processInfo()
 
         if self.isPathPlanning:
             if self.getPlanningControl().mTarget is None:

@@ -21,3 +21,4 @@ from Simulation.ComRobotPSO_niche import ComRobotPSO_niche
 from Simulation.ComRobotPSO_niche_markov import ComRobotPSO_niche_markov
 from Simulation.ComRobotCon import ComRobotCon
 from Simulation.ComRobotSenseDepict import ComRobotSenseDepict
+from Simulation.ComRobotCommunicationDepict import ComRobotCommunicationDepict

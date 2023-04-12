@@ -71,6 +71,11 @@ class ComRobot(ComObject):
         self.mObjectType = "ComRobot"       # 用于标识当前物体类别
         self.isCommunicating = True
 
+        self.isSensable = True  # 是否具有感知功能
+
+    def setSensable(self, state=True):
+        self.isSensable = state
+
     def setRobotType(self, robot_type='3D'):
         self.mRobotType = robot_type
         self.mProcessedInfo['Pos'] = {self.mId: self.pos}
@@ -99,8 +104,8 @@ class ComRobot(ComObject):
         :return:
         """
         self.sense()
-        if self.isCommunicating:
-            self.processInfo()
+        self.processInfo()
+
         self.move()
 
     def move(self):
@@ -119,10 +124,14 @@ class ComRobot(ComObject):
         '''
         通信信息处理，如一致性
         '''
+        
         ######## start 这里写一致性等通信算法
         for robot_type in self.mProcessedInfo.keys():
             dict_list = []
             if len(self.mInfo) == 0:
+                for sense_obj in self.mSenseInfo:
+                    self.mProcessedInfo[sense_obj.type][sense_obj.id] = copy.deepcopy(sense_obj.pos)
+                self.mSenseInfo.clear()
                 return
             for item in self.mInfo:
                 dict_list.append(copy.deepcopy(item[robot_type]))
@@ -183,7 +192,7 @@ class ComRobot(ComObject):
             elif self.mCommunicationRangeType == 1:
                 ax.plot_wireframe(x, y, z, color=self.mCommunicationRangeColor, alpha=self.mCommunicationRangeAlpha, rstride=self.mWireframeRstride, cstride=self.mWireframeCstride)
         
-        if self.isShowSenseRange:
+        if self.isShowSenseRange and self.isSensable:
             # angle = self.mDirection
             angle_min = self.mDirection - self.mSenseAngle/2
             angle_max = self.mDirection + self.mSenseAngle/2
@@ -255,10 +264,13 @@ class ComRobot(ComObject):
                 self.mSenseInfo.append(sense_obj)
                 ret.append(robot)
         return ret
+    
+
 
     def sense(self):
-        super().sense()
-        self.getObjectBySight()
+        if self.isSensable:
+            super().sense()
+            self.getObjectBySight()
             
 
     def setSenseDistance(self, dist):

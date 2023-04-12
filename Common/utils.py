@@ -19,6 +19,8 @@ from draw import ImageProc
 import cv2
 import time
 import copy
+import time
+from skimage import morphology
 
 __colors = [
     "cyan",
@@ -341,61 +343,144 @@ def getCircleCoordinate(degree, r=5, center=(0, 0)):
 
 def angle_with_x_axis(v):
     """
-    计算二维向量与 x 轴正向的夹角的函数
+    This is a Python function that calculates the angle between a 2D vector and the positive x-axis. 
+    The 2D vector is represented as a tuple or list containing two numbers.
     
-    参数：
-    v -- 二维向量，以一个包含两个数字的列表或元组表示
+    Parameters:
+    v -- 2D vector represented as a tuple or list containing two numbers
     
-    返回值：
-    与 x 轴正向的夹角，以弧度表示
+    Returns:
+    The angle between the vector and the positive x-axis in radians
     """
+    
+    # Extract the components of the vector
     x, y = v
+    
+    # Return the angle between the vector and the positive x-axis in radians using atan2(y,x) function from math library
     return math.atan2(y, x)
 
+
 def getMeshGridMat(x_start, x_end, y_start, y_end, z_start=None, z_end=None, x_step=1,y_step=1,z_step=1):
-    x = np.arange(x_start, x_end, x_step)
-    y = np.arange(y_start, y_end, y_step)
-    if z_start is None or z_end is None:
-        return np.meshgrid(x, y)
-    else:
-        z = np.arange(z_start, z_end, z_step)
-        return np.meshgrid(x,y,z)
-    
-def getLinePointFromImage(image_dir:str, resize=None):
-    """将图片的的黑色线条细化，并提取点归一化的坐标
+    """This function returns a meshgrid of coordinates for 2D or 3D plots.
 
     Args:
-        image_dir (str): _description_
-        resize (_type_, optional): 归一化后扩大的范围，（x1, x2, y1, y2). Defaults to None.
-    """    
-    image = ImageProc.readImage(image_dir)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    binary_image = ImageProc.binaryFilter(image)
-    binary_image = 255 - binary_image
-    binary_image = binary_image.astype(np.bool)
-    skeleton_image = ImageProc.skeletonize(binary_image)
-    pts = ImageProc.getPointFromImage(skeleton_image)
-    pts = pts.tolist()
-    y = np.array([i[0] for i in pts])
+        x_start (float): Starting x-coordinate value.
+        x_end (float): Ending x-coordinate value.
+        y_start (float): Starting y-coordinate value.
+        y_end (float): Ending y-coordinate value.
+        z_start (float, optional): Starting z-coordinate value. Defaults to None.
+        z_end (float, optional): Ending z-coordinate value. Defaults to None.
+        x_step (float, optional): Step size in the x direction. Defaults to 1.
+        y_step (float, optional): Step size in the y direction. Defaults to 1.
+        z_step (float, optional): Step size in the z direction. Defaults to 1.
+
+    Returns:
+        tuple: Returns a tuple of arrays (x, y) if two dimensional and (x, y, z) if three dimensional
+    """
+    
+    # Create a 1D array of evenly spaced values between start and end with a step value of x_step
+    x = np.arange(x_start, x_end, x_step)
+    
+    # Create a 1D array of evenly spaced values between start and end with a step value of y_step
+    y = np.arange(y_start, y_end, y_step)
+    
+    # If z_end and z_start is not specified, only the 2D mesh grid is needed
+    if z_start is None or z_end is None:
+        return np.meshgrid(x, y) # Return a tuple of coordinate matrices (x, y)
+    else:
+        # Create a 1D array of evenly spaced values between z_start and z_end with a step value of z_step
+        z = np.arange(z_start, z_end, z_step)
+        
+        return np.meshgrid(x,y,z) # Return a tuple of coordinate matrices (x, y, z)
+
+    
+# Define a function to extract coordinates of thinned line points from an image
+def getLinePointFromImage(image_dir:str, resize=None):
+    """
+    This function will thin out black lines in the image and extract normalized point coordinates.
+    
+    Args:
+        image_dir (str): The directory of the input image.
+        resize (tuple, optional): A tuple with normalized range to expand (x1,x2,y1,y2). Defaults to None.
+        
+    Returns:
+        A tuple containing lists of x and y coordinates of extracted line points.
+    """  
+    # Read the input image and convert to grayscale
+    image = cv2.imread(image_dir, cv2.IMREAD_GRAYSCALE)
+    # Thinning-out the black lines in the image using skeletonization technique
+    skeleton_image = morphology.skeletonize(~image.astype(bool))
+    # Extract the point coordinates from the thinned image 
+    pts = np.argwhere(skeleton_image)
+    # Normalize the coordinates and resize if required
+    y, x = pts[:,0], pts[:,1]
     y = y / np.max(y)
-    x = np.array([i[1] for i in pts])
     x = x / np.max(x)
     if resize is not None:
         diff_resize_x = resize[1] - resize[0]
         diff_resize_y = resize[3] - resize[2]
         x = x * diff_resize_x + resize[0]
         y = y * diff_resize_y + resize[2]
-    
+    # Return the extracted list of x and y coordinates 
     return x.tolist(), y.tolist()
+
 
 def getCircleCoordinate(degree, r=5, center=(0, 0)):
     '''
-    计算圆上的坐标
-    degree: 以x轴正向为0度顺时针旋转
-    r: 圆的半径
-    center: 圆中心点的坐标
+    A function that calculates the coordinates of a point on a circle given the degree of rotation.
+
+    Arguments:
+        degree (float): The angle of rotation in degrees. The angle is measured from the positive x-axis and increases clockwise.
+        r (float, optional): The radius of the circle. Defaults to 5 if not specified.
+        center (tuple, optional): The coordinates of the center of the circle. Defaults to (0, 0) if not specified.
+
+    Returns:
+        tuple: A tuple containing the x and y coordinates of the point on the circle.
     '''
-    return center[0] + r * math.cos(degree * math.pi/180), center[1] + r * math.sin(degree * math.pi/180)
+
+    # Calculate the x and y coordinates of the point on the circle using the given formulae
+    x = center[0] + r * math.cos(degree * math.pi/180)
+    y = center[1] + r * math.sin(degree * math.pi/180)
+
+    # Return the tuple of coordinates
+    return x, y
+
+
+import time
+
+def how_much_time(func):
+    """
+    A decorator function that calculates and prints the execution time of a given function.
+
+    Args:
+        func (function): The function to be decorated.
+
+    Returns:
+        inner (function): The decorated function.
+    """
+
+    # Define a new function that calculates the execution time of the input function 'func'.
+    def inner(*args, **kwargs):
+
+        # Get the current time before calling the input function.
+        t_start = time.time()
+
+        # Call the input function with all the given arguments.
+        result = func(*args, **kwargs)
+
+        # Get the current time after the input function has executed.
+        t_end = time.time()
+
+        # Calculate and print the time taken by the input function.
+        print("The function '{0}' took {1:.6f} seconds to execute".format(func.__name__, t_end - t_start))
+
+        # Return the result returned by the input function.
+        return result
+
+    # Return the new function that calculates execution time.
+    return inner
+
+
 
 if __name__ == "__main__":
     for i in range(100):

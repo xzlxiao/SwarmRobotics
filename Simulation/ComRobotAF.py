@@ -69,7 +69,8 @@ class ComRobotAF(ComRobot):
             else:  # 聚群和跟随都不合适则执行觅食
                 prey_fitness = self.prey()
                 # print("prey_fitness: %f"%prey_fitness)
-        
+        if not self.isCommunicating:
+            self.mSenseInfo.clear()
         self.move()
         
         

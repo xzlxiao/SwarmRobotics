@@ -70,6 +70,7 @@ class ComStage:
 
         self.isSavePos = False
         self.isSavePos2 = False
+        self.isSaveInfo = False
         self.mSavePosRound = settings.SAVE_POS_ROUND
         self.isSaveFig = False
         self.mFigSize = (18, 9)     # 画布的实际大小，w, h，英寸
@@ -364,6 +365,16 @@ class ComStage:
                 self.savePos(self.mPosSaveDir + "/pos/{}_{}.txt".format(robot.mObjectType, robot.mId), robot.pos)
             for stuff in stuff_group:
                 self.savePos(self.mPosSaveDir + "/pos/{}_{}.txt".format(stuff.mObjectType, stuff.mId), stuff.pos)
+
+        if self.isSaveInfo:
+            mkdir(self.mSaveInfoDir + '/info')
+            robot_group = self.getRobotGroup()
+            stuff_group = self.getStuffGroup()
+            for robot in robot_group:
+                self.savePos(self.mSaveInfoDir + "/info/{}_{}.txt".format(robot.mObjectType, robot.mId), robot.getMessage())
+            for stuff in stuff_group:
+                self.savePos(self.mSaveInfoDir + "/info/{}_{}.txt".format(stuff.mObjectType, stuff.mId), stuff.getMessage())
+
     
     def getRobot(self, ind):
         return list(self.mRobotList.nodes)[ind]
@@ -479,6 +490,10 @@ class ComStage:
         self.isSavePos2 = True
         self.mPosSaveDir = dir
 
+    def enableInfoSave(self, dir):
+        self.isSaveInfo = True 
+        self.mSaveInfoDir = dir
+
     def saveFig(self, dir):
         if ComStage.mCount % settings.INTERVAL_SAVE == 0:
             try:
@@ -492,6 +507,12 @@ class ComStage:
             for pos in pos_list:
                 file.write(', ')
                 file.write(str(pos))
+            file.write('\n')
+
+    def saveInfo(self, dir, info:str):
+        with open(dir, 'a+') as file:
+            file.write("{},".format(self.count))
+            file.write(info)
             file.write('\n')
 
 

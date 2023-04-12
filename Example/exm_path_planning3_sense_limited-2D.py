@@ -19,7 +19,7 @@ target_undetected_type = 'target_undetected'
 if __name__ == "__main__":
     
     stage = ComStage2D()
-    stage.enableFigSave('/Volumes/disk3/实验数据/test7')
+    # stage.enableFigSave('/Volumes/disk3/实验数据/test7')
     stage.mRuningTime = 1000000
     stage.isPlotGraph = False
     stage.isShowCommunicated = False

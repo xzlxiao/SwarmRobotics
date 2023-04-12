@@ -318,22 +318,34 @@ def get_motion_model():
 
 
 def oscillations_detection(previous_ids, ix, iy):
+    # Add the current position to the queue of previous positions
     previous_ids.append((ix, iy))
 
-    if (len(previous_ids) > OSCILLATIONS_DETECTION_LENGTH):
+    # If the queue is longer than a fixed length,
+    # remove the oldest element from the left (i.e. the first in the list)
+    if len(previous_ids) > OSCILLATIONS_DETECTION_LENGTH:
         previous_ids.popleft()
 
-    # check if contains any duplicates by copying into a set
+    # Check if there are any duplicate positions in the queue
+    # by copying the queue into a set and comparing lengths
     previous_ids_set = set()
     for index in previous_ids:
         if index in previous_ids_set:
+            # If the current position is already in the set,
+            # it means we have gone through a loop and are oscillating
             return True
         else:
+            # Otherwise, add the position to the set and continue
             previous_ids_set.add(index)
+    
+    # If we've made it through the whole loop without finding a duplicate,
+    # it means we are not oscillating
     return False
+
 
 class ComPathPlanning:
     def __init__(self) -> None:
+        # Initialize class variables
         self.mTarget = None
         self.mPos = None 
         self.mRobotRadius = 20  
@@ -347,24 +359,30 @@ class ComPathPlanning:
         self.mRandomMoveRange = 30      # 随机移动范围的步长倍数
     
     def setPos(self, pos):
+        # Set the current position of the robot
         self.mPos = pos 
         
     def setEnvSize(self, _size):
+        # Set the size of the environment this robot is moving in
         self.mEnvSize = _size
 
     def setTarget(self, target: tuple):
+        # Set the target coordinates for the robot to move towards
         self.mTarget = target
 
     def setRobotRadius(self, radius):
+        # Set the radius of the robot, used for path planning
         self.mRobotRadius = radius
 
     def setStride(self, stride_len):
+        # Set the stride length of the gradient descent algorithm used for path planning
         self.mStride = stride_len
 
     def isRandomMove(self):
         '''
         是否需要通过随机移动跳出局部极值
         '''
+        # Returns a boolean indicating whether random movement is required to escape local minima
         if not self.isRandomLeapOn:
             return False 
         
@@ -376,6 +394,7 @@ class ComPathPlanning:
             return False
     
     def randomMove(self):
+        # Randomly move the robot within a given range to escape local minima
         x = 0
         y = 0
         multi_stride = self.mStride * self.mRandomMoveRange
@@ -383,6 +402,7 @@ class ComPathPlanning:
         range_y = [self.mPos[1]-multi_stride, self.mPos[1]+multi_stride]
         if self.mEnvSize is not None:
             # 边界判断
+            # Limit the robot's movement based on the environment size
             minx = -self.mEnvSize[0]
             maxx = self.mEnvSize[0]
             miny = -self.mEnvSize[1]
@@ -400,14 +420,10 @@ class ComPathPlanning:
         self.setTarget((x, y, 0))
 
     def update(self):
-        # obstacle_pos_group = [obstacle.mPos for obstacle in self.mObstacleList]
-        # obstacle_pos_x_list = [i[0] for i in obstacle_pos_group]
-        # obstacle_pos_y_list = [i[1] for i in obstacle_pos_group]
         gx, gy = self.mTarget[0:2]
-        # ox = obstacle_pos_x_list
-        # oy = obstacle_pos_y_list
         rr = self.mRobotRadius
         sx, sy = self.mPos[0:2]
+        # Use potential field path planning to get a path from the current position to the target position
         self.mPathPtList_x, self.mPathPtList_y = potential_field_planning2(
             sx, 
             sy, 
@@ -421,6 +437,7 @@ class ComPathPlanning:
         获取下一个目的地
         x, y, angle
         '''
+        # Get the next destination for the robot to move towards
         pt_num = 2
         if len(self.mPathPtList_x) > 5:
             x1, x2 = self.mPathPtList_x[pt_num:pt_num+2]

@@ -13,6 +13,7 @@ class Agent:
         self.info = []
     
     def setPos(self, pos):
+        
         self.pos = pos
         
     def update(self):

@@ -13,6 +13,7 @@ from Common.utils import *
 from Common.DrKDtree import KDtree
 from Simulation.ComRobot import ComRobot, CommunicateMethods
 from Simulation.ComObjectCollection import *
+from Common import utils
 
 
 class ComStage2D(ComStage):
@@ -35,6 +36,7 @@ class ComStage2D(ComStage):
         for surf in self.mSurfaceGroup:
             surf.setAx(self.mAx)
 
+    
     def update(self):
         if self.mAx:
             self.mAx.cla()
@@ -135,3 +137,11 @@ class ComStage2D(ComStage):
             for stuff in stuff_group:
                 self.savePos(self.mPosSaveDir + "/pos/{}_{}.txt".format(stuff.mObjectType, stuff.mId), stuff.pos)
         
+        if self.isSaveInfo:
+            mkdir(self.mSaveInfoDir + '/info')
+            robot_group = self.getRobotGroup()
+            stuff_group = self.getStuffGroup()
+            for robot in robot_group:
+                self.saveInfo(self.mSaveInfoDir + "/info/{}_{}.txt".format(robot.mObjectType, robot.mId), robot.getMessage())
+            for stuff in stuff_group:
+                self.saveInfo(self.mSaveInfoDir + "/info/{}_{}.txt".format(stuff.mObjectType, stuff.mId), stuff.getMessage())

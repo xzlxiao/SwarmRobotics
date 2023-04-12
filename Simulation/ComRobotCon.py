@@ -210,8 +210,7 @@ class ComRobotCon(ComRobot):
 
     def update(self):
         self.sense()
-        if self.isCommunicating:
-            self.processInfo()
+        self.processInfo()
 
         # if self.isPathPlanning and self.isClosedToTarget():
         if self.isPathPlanning:

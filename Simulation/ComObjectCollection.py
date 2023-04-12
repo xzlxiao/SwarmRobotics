@@ -6,6 +6,7 @@ except:
     import numpy as np
     isCupy = False
 from Common.DrKDtree import KDtree
+from Common import utils
 
 
 object_collection = []

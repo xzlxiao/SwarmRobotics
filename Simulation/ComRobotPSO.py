@@ -107,7 +107,6 @@ class ComRobotPSO(ComRobot):
         # self.mFitness = self.getPosFit(self.mPos)
         # 查看是否需要更新经验最优
         self.pso()
-        
         self.move()
         
     def isStopping(self):
