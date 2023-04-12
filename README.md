@@ -145,4 +145,4 @@ Contributors:
 
 It is licensed under the GPL (GNU General Public License). For more information, see license.
 
-[LICENSE](./LICENSE)
+[LICENSE](./License)
