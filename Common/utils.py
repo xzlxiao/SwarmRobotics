@@ -103,21 +103,44 @@ def svg_parse(path):
 
 
 def loadSVG(path_list:list, translate_list:list):
+    '''This function loads an SVG file and translates each path by the given coordinates.
+    
+    Args:
+        path_list (list): A list of filepath strings for each SVG to be loaded
+        translate_list (list): A list of tuples representing [x,y] coordinates to translate each SVG
+    
+    Returns:
+        tuple: A tuple containing two ndarrays. The first array contains codes, and the second 
+               array contains vertices.
+    '''
+    # Initialize code and vertice variables as None
     codes = None
     vertices = None 
+    
+    # Iterate through the path_list with index and the corresponding translate values
     for index, item in enumerate(path_list):
+        # Parse the SVG data into a code and vertice array
         code, vertice = svg_parse(item)
+        
+        # Translate the vertice array using the current index's translate values
         vertice[:, 0] += translate_list[index][0]
         vertice[:, 1] += translate_list[index][1]
+        
+        # Concatenate the current code and vertice arrays into the final arrays
         if codes is None:
             codes = code
             vertices = vertice
         else:
             codes = np.concatenate([codes, code])
             vertices = np.concatenate([vertices, vertice])
+    
+    # Center the vertices around the origin by subtracting half of the maximum coordinates
     vertices[:, 0] -= np.max(vertices[:, 0])/2
     vertices[:, 1] -= np.max(vertices[:, 1])/2
+    
+    # Return the final arrays as a tuple
     return codes, vertices
+
 
 
 def getAllKeysInDict(dict_list: list):
