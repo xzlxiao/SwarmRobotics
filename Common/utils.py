@@ -1,3 +1,10 @@
+'''
+@namespace Common
+File name: utils.py
+Author: 肖镇龙（Zhenlong Xiao）
+Description: This is a collection of commonly used function utilities in this project.
+'''
+
 isCupy = False
 try:
     import cupy as np
@@ -49,19 +56,6 @@ def readPointFromFile(dir: str):
             line = line.strip()[0:-1].split(',')
             ret.append((float(line[0]), float(line[1])))
     return ret
-
-
-def distance(pt1, pt2):
-    """
-    计算两点间的距离
-    :param pt1: list or np.array
-    :param pt2: list or np.array
-    :return:
-    """
-    pt1 = np.array(pt1, dtype=np.float32)
-    pt2 = np.array(pt2, dtype=np.float32)
-    return np.linalg.norm(pt2 - pt1, ord=2)
-
 
 def calcLost(base_point_list: list, robot_point_list: list):
     """
@@ -142,6 +136,14 @@ def distance(pt1, pt2):
     :param pt1: list or np.array
     :param pt2: list or np.array
     :return:
+    """
+    """
+    距离计算公式
+    """
+    """!
+    \f[
+        d = \sqrt{(x_2-x_1)^2+(y_2-y_1)^2}
+    \f]
     """
     if np.array(pt1, dtype=np.float32).ndim == 1:
         pt1 = np.array(pt1[0:3], dtype=np.float32)

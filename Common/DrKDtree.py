@@ -1,5 +1,8 @@
-# -*- coding: utf-8 -*-
-
+"""
+File name: DrKDtree.py
+Author: 肖镇龙（Zhenlong Xiao）
+Description: This is KDtree module.
+"""
 from sklearn.neighbors import KDTree as skl_kdtree
 isCupy = False
 try:

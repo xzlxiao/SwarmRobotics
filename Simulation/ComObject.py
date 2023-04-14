@@ -75,7 +75,7 @@ class ComObject:
     # The purpose of the method is to return the value of mMessage.
 
     def getMessage(self):
-        """_summary_
+        """
         Public method of the class, returns the value of mMessage.
         mMessage is a user-defined message that can be used to store intermediate data during simulation.
 
@@ -86,7 +86,7 @@ class ComObject:
 
 
     def setMessage(self, message):
-        """_summary_
+        """
         Public method of the class, used to set the value of mMessage.
 
         Args:
@@ -119,7 +119,14 @@ class ComObject:
 
     
     def setTrailLineAlpha(self, alpha):
+        """Set the alpha value of the trail line
+        
+        Args:
+            alpha (float): The desired alpha value for the trail line.
+        """        
+        # Set the trail line's alpha value to the input argument
         self.mTrailLineAlpha = alpha
+
 
     def getUpdateCount(self):
         return ComObject.update_count
