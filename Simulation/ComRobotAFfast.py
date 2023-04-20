@@ -3,8 +3,10 @@
 
 from torch import poisson
 from Simulation.ComRobot import ComRobot 
+from Simulation.ComRobotCon import ComRobotCon 
 from Simulation.ComObject import ComObject 
 import copy
+import math
 isCupy = False
 try:
     import cupy as np
@@ -21,7 +23,7 @@ from Common import utils
 
 
 AF_SPEED = 1            # 每次移动距离
-AF_MAXPREYNUM = 50     # 每次最大进行觅食尝试的次数
+AF_MAXPREYNUM = 10     # 每次最大进行觅食尝试的次数
 AF_POPULATIONNUM = 20   # 人工鱼数量
 AF_FOODSIZE = 5         # 最大食物数量
 AF_MAXITERNUM = 1000    # 最大迭代次数
@@ -32,7 +34,7 @@ AF_GETFOODDIST = 1      # 找到食物的最小距离
 
 
 
-class ComRobotAFfast(ComRobot):
+class ComRobotAFfast(ComRobotCon):
     def __init__(self, pos):
         super(ComRobotAFfast, self).__init__(pos)
         self.mPopulation = {}       # 鱼群      感知到的族群及其坐标
@@ -51,6 +53,19 @@ class ComRobotAFfast(ComRobot):
         self.sense()
         self.processInfo()
         self.AFfast()
+
+        if self.isPathPlanning:
+            if self.getPlanningControl().mTarget is None:
+                self.setPlanningTarget(self.mPos)
+            self.pathPlanning()
+
+            # print(self.mDirection)
+            # print(self.mTargetDirection)
+            # print(self.mPathPlanningControl.mPathPtList_x, self.mPathPlanningControl.mPathPtList_y)
+            
+        self.pathFollowing()
+        # if self.mId == 0:
+        #     print(self.mLineSpeed, self.mRotationSpeed)
         self.move()
     
     def  AFfast(self):
@@ -109,10 +124,16 @@ class ComRobotAFfast(ComRobot):
             pos = self.getRandomSensePos()
             fitness = self.getPosFit(pos)
             if fitness > self.mFitness:
-                self.target = pos
+                if self.isPathPlanning:
+                    self.setPlanningTarget(pos)
+                else:
+                    self.target = pos
                 return fitness
         pos = self.getRandomSensePos()
-        self.target = pos
+        if self.isPathPlanning:
+            self.setPlanningTarget(pos)
+        else:
+            self.target = pos
         self.mFollowedAgentID = None
         return self.getPosFit(pos)
 
@@ -147,7 +168,10 @@ class ComRobotAFfast(ComRobot):
             # 计算该点适应度
             fitness = self.getPosFit(center)
             if fitness > self.mFitness and not self.isCrowded(fitness, self.mFitness, center):
-                self.target = center
+                if self.isPathPlanning:
+                    self.setPlanningTarget(center)
+                else:
+                    self.target = center
                 return fitness
         # 若人工鱼数量等于0，或适应度无法改善，或过于拥挤
 
@@ -193,7 +217,10 @@ class ComRobotAFfast(ComRobot):
         # 如果适应度比自己大
         if fitness_max > self.mFitness and agent_max_pos is not None:
             if self.isCrowded(fitness_max, self.mFitness, agent_max_pos):  # 感知该人工鱼的拥挤度，如果拥挤度不大，则向该人工鱼移动一步
-                self.target = agent_max_pos
+                if self.isPathPlanning:
+                    self.setPlanningTarget(agent_max_pos)
+                else:
+                    self.target = agent_max_pos
                 return fitness_max
         self.mFollowedAgentID = agent_max_id
         # 否则返回-1
@@ -288,6 +315,11 @@ class ComRobotAFfast(ComRobot):
                 new_pos = np.array([x, y], dtype=np.float32)
             angle_in_xy = ComObject.getAngleBetweenXandVector(new_pos, self.pos, plat='xy') - self.mDirection     # xy平面内的偏航角度
             angle_with_xy = ComObject.getAngleBetweenXandVector(new_pos, self.pos, plat='o-xy')   # 与xy平面的夹角
+            if angle_in_xy > math.pi * 2:
+                angle_in_xy = angle_in_xy % (math.pi * 2)
+            elif angle_in_xy < -math.pi *2:
+                angle_in_xy = angle_in_xy % (-math.pi * 2)
+            # print(ComObject.getAngleBetweenXandVector(new_pos, self.pos, plat='xy'), angle_with_xy, self.mDirection)
             if np.linalg.norm(new_pos - self.pos) < self.mSenseDistance:
                 if angle_in_xy >= -self.mSenseAngle and angle_in_xy <= self.mSenseAngle:
                     if angle_with_xy >= -self.mSenseAngle and angle_with_xy <= self.mSenseAngle:                

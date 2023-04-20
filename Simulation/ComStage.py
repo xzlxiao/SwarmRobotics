@@ -328,7 +328,7 @@ class ComStage:
                     y.append(edge[1].mPos[1])
                     z.append(edge[0].mPos[2])
                     z.append(edge[1].mPos[2])
-                    self.mAx.plot(x, y, z, 'g-.', alpha=0.3, linewidth=1)
+                    self.mAx.plot(x, y, z, 'g-.', alpha=0.7, linewidth=1.5)
         if self.isPlotGraph and len(self.mRobotList.nodes) > 1:
             graph_pos = net.circular_layout(self.mRobotList)#布置框架
             net.draw(self.mRobotList,graph_pos,ax=self.mGraphAx, with_labels=False,node_size=30)
@@ -346,7 +346,7 @@ class ComStage:
 
         if self.mMonitorGroupAx is not None:
             if self.mMonitorPlot is None:
-                img = Image.open("./resources/image2.jpeg")
+                img = Image.open("./Resource/image2.jpeg")
                 for ax in self.mMonitorGroupAx:
                     ax.imshow(img)
             else:

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from Simulation.ComRobot import ComRobot 
+from Simulation.ComRobot import ComRobot
 from Simulation.ComObject import ComObject 
 import copy
 isCupy = False

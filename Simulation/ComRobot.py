@@ -39,7 +39,7 @@ class ComRobot(ComObject):
         self.mId = ComRobot._robot_count
         self._mInformationState = 'global'       # 通信方式是global, local 或 no
         self.mCommunicationRange = 800
-        self.mCommunicationRangeColor = "yellow"
+        self.mCommunicationRangeColor = "grey"
         self.mCommunicationRangeAlpha = 0.03
         self.mCommunicationRangeType = 0         # 0: surface 1: wireframe
         self.mNetworkModule = None

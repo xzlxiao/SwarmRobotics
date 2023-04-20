@@ -145,9 +145,14 @@ class ComObject:
         self.mStage = stage
 
     def setDirection(self, direction):
-        self.mDirection = direction
+        if direction > math.pi*2:
+            self.mDirection = direction%(math.pi*2)
+        elif direction < -math.pi*2:
+            self.mDirection = direction%(-math.pi*2)
+        else:
+            self.mDirection = direction
         if self.mTargetDirection is None:
-            self.mTargetDirection = direction
+            self.mTargetDirection = self.mDirection
             
     @staticmethod
     def getAngleBetweenXandVector(pt1, pt2, plat='xy'):
@@ -165,12 +170,38 @@ class ComObject:
         
         # Define a dictionary to map input strings to their corresponding mathematical functions. 
         # As there were multiple if-else conditions in the original code, it can be made more concise by using a dictionary.
-        planes = {'xy':(deltaY, deltaX), 'xz':(deltaZ, deltaX), 'yz':(deltaZ, deltaY), 'o-xy':(math.sqrt(deltaX**2 + deltaY**2), deltaZ)}
+        planes = {'xy':(deltaY, deltaX), 'xz':(deltaZ, deltaX), 'yz':(deltaZ, deltaY), 'o-xy':(deltaZ, math.sqrt(math.pow(deltaX, 2) + math.pow(deltaY, 2)))}
         
         try:
             return math.atan2(*planes[plat])
         except KeyError:  # Invalid 'plat' parameter.
             return None
+        
+    # @staticmethod
+    # def getAngleBetweenXandVector(pt1, pt2, plat='xy'):
+    #     '''
+    #     @brief 获得两点形成的向量与x轴之间的夹角（二维）
+    #     @param pt1: 起始点
+    #     @param pt2: 终止点
+    #     '''
+
+    #     deltaX = pt2[0] - pt1[0]
+    #     deltaY = pt2[1] - pt1[1]
+    #     deltaZ = 0
+    #     if len(pt1) == 3 and len(pt2) == 3:
+    #         deltaZ = pt2[2] - pt1[2]
+        
+    #     if plat=='xy':  # xy平面内与x轴的夹角
+    #         return math.atan2(deltaY, deltaX)
+    #     elif plat=='xz': # xz平面内与x轴的夹角
+    #         return math.atan2(deltaZ, deltaX)
+    #     elif plat=='yz': # yz平面内与y轴的夹角
+    #         return math.atan2(deltaZ, deltaY) 
+    #     elif plat=='o-xy': # 与xy平面的夹角
+    #         deltaXY = math.sqrt(math.pow(deltaX, 2) + math.pow(deltaY, 2))
+    #         return math.atan2(deltaZ, deltaXY) 
+    #     else:
+    #         return None
 
 
     def setColor(self, color=(1.0, .0, .0, 1.0)):
