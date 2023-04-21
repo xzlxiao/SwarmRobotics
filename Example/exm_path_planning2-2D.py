@@ -17,7 +17,7 @@ target = (0, 800, 0)
 if __name__ == "__main__":
     
     stage = ComStage2D()
-    stage.enableFigSave('/Volumes/disk3/实验数据/test6')
+    # stage.enableFigSave('/Volumes/disk3/实验数据/test6')
     stage.mRuningTime = 1000000
     stage.isPlotGraph = False
     stage.isShowCommunicated = False
