@@ -201,10 +201,10 @@ class ComRobotAFfast(ComRobotCon):
         """
         # Calculate the center of the population
         if len(self.mPopulation) > 0:
-            center = np.array([0.0, 0.0, 0.0], dtype=np.float32)
+            center = np.array([0.0, 0.0, 0.0], dtype=float)
             for agent_pos in self.mPopulation.values():
                 if len(agent_pos) < 3:
-                    agent_pos_tmp = np.array([0.0, 0.0, 0.0], dtype=np.float32)
+                    agent_pos_tmp = np.array([0.0, 0.0, 0.0], dtype=float)
                     agent_pos_tmp[0:2] = agent_pos[0:2]
                     agent_pos = agent_pos_tmp
                 center += agent_pos
@@ -345,7 +345,7 @@ class ComRobotAFfast(ComRobotCon):
         if len(self.mFood) > 0:
             for food_pos in self.mFood:
                 food_pos = utils.two_dim_to_three_dim(food_pos)
-                distance = np.linalg.norm(np.array(position, dtype=np.float32) - food_pos, ord=2)
+                distance = np.linalg.norm(np.array(position, dtype=float) - food_pos, ord=2)
                 fitness_tmp = 1 - (distance / self.mSenseDistance)
                 # In case we want to use inverse distance as fitness value
                 #fitness_tmp = 1 / (distance + 0.000000000000001)
@@ -380,7 +380,7 @@ class ComRobotAFfast(ComRobotCon):
         This method generates a random position within the sensing range of the agent.
 
         Returns:
-            np.float32: A randomly generated position within the agent's sensing range.
+            float: A randomly generated position within the agent's sensing range.
         """        
         if self.pos[0] - self.mSenseDistance > -mySettings.CS_ENVSIZE[0]:
             x_min = self.pos[0] - self.mSenseDistance
@@ -417,9 +417,9 @@ class ComRobotAFfast(ComRobotCon):
             z = random.uniform(z_min, z_max)
             new_pos = None
             if self.mRobotType == '3D':
-                new_pos = np.array([x, y, z], dtype=np.float32)
+                new_pos = np.array([x, y, z], dtype=float)
             elif self.mRobotType == '2D':
-                new_pos = np.array([x, y], dtype=np.float32)
+                new_pos = np.array([x, y], dtype=float)
             angle_in_xy = ComObject.getAngleBetweenXandVector(new_pos, self.pos, plat='xy') - self.mDirection     # xy平面内的偏航角度
             angle_with_xy = ComObject.getAngleBetweenXandVector(new_pos, self.pos, plat='o-xy')   # 与xy平面的夹角
             if angle_in_xy > math.pi * 2:

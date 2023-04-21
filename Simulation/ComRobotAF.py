@@ -168,7 +168,7 @@ class ComRobotAF(ComRobot):
         """
         # Calculate the center of the population (only if we have artificial fish agents)
         if len(self.mPopulation) > 0:
-            center = np.array([0.0, 0.0, 0.0], dtype=np.float32)
+            center = np.array([0.0, 0.0, 0.0], dtype=float)
             for agent_pos in self.mPopulation.values():
                 center += agent_pos
             center /= len(self.mPopulation)
@@ -289,8 +289,8 @@ class ComRobotAF(ComRobot):
         # Calculate the fitness based on the distance to each food source
         if len(self.mFood) > 0:
             for food_pos in self.mFood:
-                fitness_tmp = 1 - (np.linalg.norm(np.array(position, dtype=np.float32) - food_pos, ord=2) / self.mSenseDistance)
-                # fitness_tmp = 1 / (np.linalg.norm(np.array(position, dtype=np.float32) - food_pos, ord=2) + 0.000000000000001)
+                fitness_tmp = 1 - (np.linalg.norm(np.array(position, dtype=float) - food_pos, ord=2) / self.mSenseDistance)
+                # fitness_tmp = 1 / (np.linalg.norm(np.array(position, dtype=float) - food_pos, ord=2) + 0.000000000000001)
                 if fitness_tmp > fitness:
                     fitness = fitness_tmp
         # fitness = utils.sigmoid(fitness, 0.5, 0.5)
@@ -354,7 +354,7 @@ class ComRobotAF(ComRobot):
             x = random.uniform(x_min, x_max)
             y = random.uniform(y_min, y_max)
             z = random.uniform(z_min, z_max)
-            new_pos = np.array([x, y, z], dtype=np.float32)
+            new_pos = np.array([x, y, z], dtype=float)
             
             # Calculate angles between the new position and the robot's current position in xy plane
             angle_in_xy = ComObject.getAngleBetweenXandVector(new_pos, self.pos, plat='xy') - self.mDirection

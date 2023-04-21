@@ -34,8 +34,8 @@ class ComRobot(ComObject):
     _robot_list = []
     def __init__(self, pos):
         super(ComRobot, self).__init__()
-        self.mPos = np.array(pos, dtype=np.float32)
-        self.mTarget = np.array(self.mPos, dtype=np.float32)
+        self.mPos = np.array(pos, dtype=float)
+        self.mTarget = np.array(self.mPos, dtype=float)
         self.mId = ComRobot._robot_count
         self._mInformationState = 'global'       # 通信方式是global, local 或 no
         self.mCommunicationRange = 800

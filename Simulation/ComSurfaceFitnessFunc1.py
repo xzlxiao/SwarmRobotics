@@ -51,10 +51,10 @@ class ComSurfaceFitness(ComSurfaceBase):
         if self.mZDir == 'z' or self.mZDir == '2D':
             x_mat = np.repeat(np.array([self.mX]), len(self.mY), axis=0).astype(float)
             y_mat = np.repeat(np.array([self.mY]), len(self.mX), axis=0).T.astype(float)
-            self.mData = np.zeros_like(x_mat, dtype=np.float)
-            data_tmp = np.zeros_like(x_mat, dtype=np.float)
-            food_pos_x_mat = np.zeros_like(x_mat, dtype=np.float)
-            food_pos_y_mat = np.zeros_like(x_mat, dtype=np.float)
+            self.mData = np.zeros_like(x_mat, dtype=float)
+            data_tmp = np.zeros_like(x_mat, dtype=float)
+            food_pos_x_mat = np.zeros_like(x_mat, dtype=float)
+            food_pos_y_mat = np.zeros_like(x_mat, dtype=float)
             if len(self.mFood) > 0:
                 for food_pos_tmp in food_pos_group:
                     food_pos_x_mat[:] = food_pos_tmp[0]     # Assign x-coordinate to x-matrix
@@ -66,10 +66,10 @@ class ComSurfaceFitness(ComSurfaceBase):
         elif self.mZDir == 'y':
             x_mat = np.repeat([self.mX], len(self.mY), axis=0).astype(float)
             y_mat = np.repeat([self.mY], len(self.mX), axis=0).T.astype(float)
-            self.mData = np.zeros_like(x_mat, dtype=np.float)
-            data_tmp = np.zeros_like(x_mat, dtype=np.float)
-            food_pos_x_mat = np.zeros_like(x_mat, dtype=np.float)
-            food_pos_y_mat = np.zeros_like(x_mat, dtype=np.float)
+            self.mData = np.zeros_like(x_mat, dtype=float)
+            data_tmp = np.zeros_like(x_mat, dtype=float)
+            food_pos_x_mat = np.zeros_like(x_mat, dtype=float)
+            food_pos_y_mat = np.zeros_like(x_mat, dtype=float)
             if len(self.mFood) > 0:
                 for food_pos_tmp in food_pos_group:
                     food_pos_x_mat[:] = food_pos_tmp[0]     # Assign x-coordinate to x-matrix
@@ -81,10 +81,10 @@ class ComSurfaceFitness(ComSurfaceBase):
         elif self.mZDir == 'x':
             x_mat = np.repeat([self.mX], len(self.mY), axis=0).astype(float)
             y_mat = np.repeat([self.mY], len(self.mX), axis=0).T.astype(float)
-            self.mData = np.zeros_like(x_mat, dtype=np.float)
-            data_tmp = np.zeros_like(x_mat, dtype=np.float)
-            food_pos_x_mat = np.zeros_like(x_mat, dtype=np.float)
-            food_pos_y_mat = np.zeros_like(x_mat, dtype=np.float)
+            self.mData = np.zeros_like(x_mat, dtype=float)
+            data_tmp = np.zeros_like(x_mat, dtype=float)
+            food_pos_x_mat = np.zeros_like(x_mat, dtype=float)
+            food_pos_y_mat = np.zeros_like(x_mat, dtype=float)
             if len(self.mFood) > 0:
                 for food_pos_tmp in food_pos_group:
                     food_pos_x_mat[:] = food_pos_tmp[1]     # Assign y-coordinate to x-matrix

@@ -44,10 +44,10 @@ class ComObject:
         Initializes all object attributes with their default values.
         """
         self.mId = -1   # Object ID
-        self.mPos = np.array([0, 0, 0], dtype=np.float32)   # Current location (x, y, z)
-        self.mOrientation = np.zeros((3, 3), dtype=np.float)   # Current orientation matrix
-        self.mTarget = np.array(self.mPos, dtype=np.float32)   # Target location (x, y, z)
-        self.mTargetOrientation = np.array(self.mOrientation, dtype=np.float)   # Target orientation matrix
+        self.mPos = np.array([0, 0, 0], dtype=float)   # Current location (x, y, z)
+        self.mOrientation = np.zeros((3, 3), dtype=float)   # Current orientation matrix
+        self.mTarget = np.array(self.mPos, dtype=float)   # Target location (x, y, z)
+        self.mTargetOrientation = np.array(self.mOrientation, dtype=float)   # Target orientation matrix
         self.mInterval = []   # List of time intervals between iterations
         self.mSpeed = 300   # Moving speed in unit per second
         self.mColor = 'red'   # Object color
@@ -191,7 +191,7 @@ class ComObject:
                 None
         '''
         self.target = target
-        # self.mTarget = np.array(target[0:3], dtype=np.float32)
+        # self.mTarget = np.array(target[0:3], dtype=float)
 
     def setStage(self, stage):
         '''
@@ -340,13 +340,13 @@ class ComObject:
 
         # Check the robot type to determine how many coordinates to update from the beginning of mPos.
         if self.mRobotType == '2D':
-            self.mPos[0:2] = np.array(value[0:2], dtype=np.float32)
+            self.mPos[0:2] = np.array(value[0:2], dtype=float)
         elif self.mRobotType == '3D':
-            self.mPos[0:3] = np.array(value[0:3], dtype=np.float32)
+            self.mPos[0:3] = np.array(value[0:3], dtype=float)
         else:
             # For other robot types, update all coordinates in mPos.
             # This assumes that value has the same number of elements as mPos.
-            self.mPos = np.array(value, dtype=np.float32)
+            self.mPos = np.array(value, dtype=float)
 
     
     @property
@@ -379,12 +379,12 @@ class ComObject:
 
         # Check the robot type to determine how many coordinates to set in mTarget.
         if self.mRobotType == '2D':
-            self.mTarget[0:2] = np.array(value[0:2], dtype=np.float32)
+            self.mTarget[0:2] = np.array(value[0:2], dtype=float)
         elif self.mRobotType == '3D':
-            self.mTarget[0:3] = np.array(value[0:3], dtype=np.float32)
+            self.mTarget[0:3] = np.array(value[0:3], dtype=float)
         else:
             # For other robot types, set the entire mTarget list to the given value.
-            self.mTarget = np.array(value, dtype=np.float32)
+            self.mTarget = np.array(value, dtype=float)
 
     def getPos2d(self):
         """

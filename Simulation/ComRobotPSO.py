@@ -78,15 +78,15 @@ class ComRobotPSO(ComRobot):
         # Check if the type of the robot is 2D.
         if self.mRobotType == '2D':
             # If true, update the first two elements of '_mBestPosition' with the given value. 
-            self._mBestPosition[0:2] = np.array(value[0:2], dtype=np.float32)
+            self._mBestPosition[0:2] = np.array(value[0:2], dtype=float)
         # Check if the type of the robot is 3D.
         elif self.mRobotType == '3D':
             # If true, update the first three elements of '_mBestPosition' with the given value.
-            self._mBestPosition[0:3] = np.array(value[0:3], dtype=np.float32)
+            self._mBestPosition[0:3] = np.array(value[0:3], dtype=float)
         # When the robot type is unknown or anything else,
         else:
             # Update the full '_mBestPosition' with the given value.
-            self._mBestPosition = np.array(value, dtype=np.float32)
+            self._mBestPosition = np.array(value, dtype=float)
 
 
     def pso(self):
@@ -252,8 +252,8 @@ class ComRobotPSO(ComRobot):
         
         if len(self.mFood) > 0:
             for food_pos in self.mFood:
-                fitness_tmp = 1 - (np.linalg.norm(np.array(position, dtype=np.float32) - food_pos, ord=2) / self.mSenseDistance)
-                # fitness_tmp = 1 / (np.linalg.norm(np.array(position, dtype=np.float32) - food_pos, ord=2) + 0.000000000000001)
+                fitness_tmp = 1 - (np.linalg.norm(np.array(position, dtype=float) - food_pos, ord=2) / self.mSenseDistance)
+                # fitness_tmp = 1 / (np.linalg.norm(np.array(position, dtype=float) - food_pos, ord=2) + 0.000000000000001)
                 
                 # Updates the fitness value if the distance-based contribution is greater than the current fitness
                 if fitness_tmp > fitness:
@@ -284,7 +284,7 @@ class ComRobotPSO(ComRobot):
         """Method to get a random position within the robot's sensing range.
 
         Returns:
-            new_pos (np.float32): A random position numpy array.
+            new_pos (float): A random position numpy array.
         """
         
         # Determine the minimum and maximum x, y, z values for the sensing range.
@@ -320,7 +320,7 @@ class ComRobotPSO(ComRobot):
             z = random.uniform(z_min, z_max)
             
             # Create a new position array and calculate angle_in_xy.
-            new_pos = np.array([x, y, z], dtype=np.float32)
+            new_pos = np.array([x, y, z], dtype=float)
             angle_in_xy = ComObject.getAngleBetweenXandVector(new_pos, self.pos, plat='xy') - self.mDirection
             
             # If the robot is 3D, calculate angle_with_xy.

@@ -242,8 +242,8 @@ class ComRobotAF_niche_evolve(ComRobotAF_niche):
         
         if len(self.mFood) > 0:
             for food_pos in self.mFood:
-                fitness_tmp = 1 - (np.linalg.norm(np.array(position, dtype=np.float32) - food_pos, ord=2) / self.mSenseDistance)
-                # fitness_tmp = 1 / (np.linalg.norm(np.array(position, dtype=np.float32) - food_pos, ord=2) + 0.000000000000001)
+                fitness_tmp = 1 - (np.linalg.norm(np.array(position, dtype=float) - food_pos, ord=2) / self.mSenseDistance)
+                # fitness_tmp = 1 / (np.linalg.norm(np.array(position, dtype=float) - food_pos, ord=2) + 0.000000000000001)
                 if fitness_tmp > fitness:
                     fitness = fitness_tmp
         # fitness = sigmoid(fitness, 0.5, 1)

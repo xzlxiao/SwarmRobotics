@@ -32,8 +32,8 @@ class ComFish(ComObject):
         super(ComFish, self).__init__()
 
         # Set initial values for properties
-        self.mPos = np.array(pos, dtype=np.float32)
-        self.mTarget = np.array(self.mPos, dtype=np.float32)
+        self.mPos = np.array(pos, dtype=float)
+        self.mTarget = np.array(self.mPos, dtype=float)
         self.mId = ComFish._fish_count
         self.mSenseDistance = 300
         self.isShowSenseRange = False

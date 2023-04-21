@@ -246,7 +246,7 @@ class KDtree():
         dist_list = []
 
         # Convert the origin point to a numpy array if it's not already
-        ori_pt_tmp = np.array([ori_pt[0], ori_pt[1]], dtype=np.float32)
+        ori_pt_tmp = np.array([ori_pt[0], ori_pt[1]], dtype=float)
 
         # Loop through each point in the point_list to convert to polar coordinates
         for i in range(pt_num):

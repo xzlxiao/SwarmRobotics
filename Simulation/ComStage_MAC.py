@@ -104,7 +104,7 @@ class ComStageMAC(ComStage):
                     i, j = self.leaveHistory.pop()
                     robot.mTarget = np.array([self.map[i][j]['pos'][0],
                                             self.map[i][j]['pos'][1],
-                                            500], dtype=np.float32)
+                                            500], dtype=float)
                     robot.p_acsInfo[robot.mId] = {'type': 'slot-rpl', 'slots': self.map[i][j]['slots']}
                     self.map[i][j]['status'] = 'waiting'
                     return
@@ -118,28 +118,28 @@ class ComStageMAC(ComStage):
                                 self.map[mi][p]['status'] = 'waiting'
                                 robot.mTarget = np.array([self.map[mi][p]['pos'][0],
                                                         self.map[mi][p]['pos'][1],
-                                                        500], dtype=np.float32)
+                                                        500], dtype=float)
                                 return
                         for p in range(mi, ma + 1):
                             if self.map[ma][p]['status'] == 'idle':
                                 self.map[ma][p]['status'] = 'waiting'
                                 robot.mTarget = np.array([self.map[ma][p]['pos'][0],
                                                         self.map[ma][p]['pos'][1],
-                                                        500], dtype=np.float32)
+                                                        500], dtype=float)
                                 return
                         for p in range(mi, ma + 1):
                             if self.map[p][mi]['status'] == 'idle':
                                 self.map[p][mi]['status'] = 'waiting'
                                 robot.mTarget = np.array([self.map[p][mi]['pos'][0],
                                                         self.map[p][mi]['pos'][1],
-                                                        500], dtype=np.float32)
+                                                        500], dtype=float)
                                 return
                         for p in range(mi, ma + 1):
                             if self.map[p][ma]['status'] == 'idle':
                                 self.map[p][ma]['status'] = 'waiting'
                                 robot.mTarget = np.array([self.map[p][ma]['pos'][0],
                                                         self.map[p][ma]['pos'][1],
-                                                        500], dtype=np.float32)
+                                                        500], dtype=float)
                                 return
             else:
                 return
@@ -349,7 +349,7 @@ if __name__ == "__main__":
     #     y = random.uniform(range_y[0], range_y[1])
     #     z = random.uniform(range_z[0], range_z[1])
     #     robot = ComRobotAF_MAC((x, y, 400), stage)
-    #     # robot.mTarget = np.array([s5[i], s6[i], 500], dtype=np.float32)
+    #     # robot.mTarget = np.array([s5[i], s6[i], 500], dtype=float)
     #     robot.isPlotTrail = True
     #     stage.addRobot(robot)
 

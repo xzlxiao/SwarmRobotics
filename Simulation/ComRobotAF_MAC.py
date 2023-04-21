@@ -702,7 +702,7 @@ class ComRobotAF_MAC(ComRobotAF):
                             self.stage.map[i][j]['status'] = 'useless'
                             self.mTarget = np.array([self.mPos[0],
                                                     self.mPos[0],
-                                                    400], dtype=np.float32)
+                                                    400], dtype=float)
                         else:
                             self.setDirection(angle)
             else:  # if the robot is not stopped or at the correct height, update initial direction 
@@ -712,7 +712,7 @@ class ComRobotAF_MAC(ComRobotAF):
             if self.hasSendLeaFlag == 2:  #if the robot has confirmed it is leaving
                 self.mTarget = np.array([self.mPos[0],
                                         self.mPos[0],
-                                        400], dtype=np.float32)  # set target position for the robot
+                                        400], dtype=float)  # set target position for the robot
         
         else:  # if the status is neither entering nor leaving, exit the function
             return

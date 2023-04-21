@@ -63,13 +63,13 @@ class ComSurfaceCrowded(ComSurfaceBase):
         agent_pos_group = np.array([[agent.mPos[0], agent.mPos[1]] for agent in self.mPopulation])  # Get the position of all agents in a numpy array
         x_mat = np.repeat(np.array([self.mX]), len(self.mY), axis=0).astype(float)  # Create a matrix of x-coordinates
         y_mat = np.repeat(np.array([self.mY]), len(self.mX), axis=0).T.astype(float)  # Create a matrix of y-coordinates
-        self.mData = np.zeros_like(x_mat, dtype=np.float)  # Initialize the self.mData attribute to a matrix of zeros
-        fitness_mat = np.zeros_like(x_mat, dtype=np.float)  # Initialize the fitness_mat variable to a matrix of zeros
-        data_tmp = np.zeros_like(x_mat, dtype=np.float)  # Initialize the data_tmp variable to a matrix of zeros
-        food_pos_x_mat = np.zeros_like(x_mat, dtype=np.float)  # Initialize the food_pos_x_mat variable to a matrix of zeros
-        food_pos_y_mat = np.zeros_like(x_mat, dtype=np.float)  # Initialize the food_pos_y_mat variable to a matrix of zeros
+        self.mData = np.zeros_like(x_mat, dtype=float)  # Initialize the self.mData attribute to a matrix of zeros
+        fitness_mat = np.zeros_like(x_mat, dtype=float)  # Initialize the fitness_mat variable to a matrix of zeros
+        data_tmp = np.zeros_like(x_mat, dtype=float)  # Initialize the data_tmp variable to a matrix of zeros
+        food_pos_x_mat = np.zeros_like(x_mat, dtype=float)  # Initialize the food_pos_x_mat variable to a matrix of zeros
+        food_pos_y_mat = np.zeros_like(x_mat, dtype=float)  # Initialize the food_pos_y_mat variable to a matrix of zeros
         MaxCrowded = 1 / len(self.mPopulation) # Calculate the maximum amount of crowding (inverse proportion of agents)
-        agent_in_range_mat = np.zeros_like(x_mat, dtype=np.float)  # Initialize the agent_in_range_mat variable to a matrix of zeros
+        agent_in_range_mat = np.zeros_like(x_mat, dtype=float)  # Initialize the agent_in_range_mat variable to a matrix of zeros
         if len(self.mFood) > 0:
             for food_pos_tmp in food_pos_group:  # Iterate through all food positions
                 food_pos_x_mat[:] = food_pos_tmp[0]     # Assign the x-coordinates of the current food item to food_pos_x_mat

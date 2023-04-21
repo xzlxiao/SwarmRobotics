@@ -66,12 +66,12 @@ class ComSurfaceFitness(ComSurfaceBase):
             y_mat = np.repeat(np.array([self.mY]), len(self.mX), axis=0).T.astype(float)
 
             # Initialize mData to zeros.
-            self.mData = np.zeros_like(x_mat, dtype=np.float)
+            self.mData = np.zeros_like(x_mat, dtype=float)
             
             # Set up data_tmp, food_pos_x_mat, and food_pos_y_mat to store temporary values.
-            data_tmp = np.zeros_like(x_mat, dtype=np.float)
-            food_pos_x_mat = np.zeros_like(x_mat, dtype=np.float)
-            food_pos_y_mat = np.zeros_like(x_mat, dtype=np.float)
+            data_tmp = np.zeros_like(x_mat, dtype=float)
+            food_pos_x_mat = np.zeros_like(x_mat, dtype=float)
+            food_pos_y_mat = np.zeros_like(x_mat, dtype=float)
 
             # Calculate the fitness value based on the distance from each food item.
             if len(self.mFood) > 0:
@@ -90,12 +90,12 @@ class ComSurfaceFitness(ComSurfaceBase):
             y_mat = np.repeat([self.mY], len(self.mX), axis=0).T.astype(float)
 
             # Initialize mData to zeros.
-            self.mData = np.zeros_like(x_mat, dtype=np.float)
+            self.mData = np.zeros_like(x_mat, dtype=float)
             
             # Set up data_tmp, food_pos_x_mat, and food_pos_y_mat to store temporary values.
-            data_tmp = np.zeros_like(x_mat, dtype=np.float)
-            food_pos_x_mat = np.zeros_like(x_mat, dtype=np.float)
-            food_pos_y_mat = np.zeros_like(x_mat, dtype=np.float)
+            data_tmp = np.zeros_like(x_mat, dtype=float)
+            food_pos_x_mat = np.zeros_like(x_mat, dtype=float)
+            food_pos_y_mat = np.zeros_like(x_mat, dtype=float)
 
             # Calculate the fitness value based on the distance from each food item.
             if len(self.mFood) > 0:
@@ -114,12 +114,12 @@ class ComSurfaceFitness(ComSurfaceBase):
             y_mat = np.repeat([self.mY], len(self.mX), axis=0).T.astype(float)
 
             # Initialize mData to zeros.
-            self.mData = np.zeros_like(x_mat, dtype=np.float)
+            self.mData = np.zeros_like(x_mat, dtype=float)
             
             # Set up data_tmp, food_pos_x_mat, and food_pos_y_mat to store temporary values.
-            data_tmp = np.zeros_like(x_mat, dtype=np.float)
-            food_pos_x_mat = np.zeros_like(x_mat, dtype=np.float)
-            food_pos_y_mat = np.zeros_like(x_mat, dtype=np.float)
+            data_tmp = np.zeros_like(x_mat, dtype=float)
+            food_pos_x_mat = np.zeros_like(x_mat, dtype=float)
+            food_pos_y_mat = np.zeros_like(x_mat, dtype=float)
 
             # Calculate the fitness value based on the distance from each food item.
             if len(self.mFood) > 0:

@@ -87,8 +87,8 @@ def distance(pt1, pt2):
     Returns:
         float: The Euclidean distance between the two points.
     """
-    pt1 = np.array(pt1, dtype=np.float32)
-    pt2 = np.array(pt2, dtype=np.float32)
+    pt1 = np.array(pt1, dtype=float)
+    pt2 = np.array(pt2, dtype=float)
     return np.linalg.norm(pt2 - pt1, ord=2)
 
 
@@ -207,13 +207,13 @@ def distance(pt1, pt2):
     Returns:
         float: The euclidean distance between the two points.
     """
-    if np.array(pt1, dtype=np.float32).ndim == 1:
-        pt1 = np.array(pt1[0:3], dtype=np.float32)
-        pt2 = np.array(pt2[0:3], dtype=np.float32)
+    if np.array(pt1, dtype=float).ndim == 1:
+        pt1 = np.array(pt1[0:3], dtype=float)
+        pt2 = np.array(pt2[0:3], dtype=float)
         return np.linalg.norm(pt2 - pt1, ord=2)
-    elif np.array(pt1, dtype=np.float32).ndim == 2 and np.array(pt2, dtype=np.float32).ndim == 1:
-        pt1 = np.array(pt1, dtype=np.float32)
-        pt2 = np.array(pt2, dtype=np.float32)
+    elif np.array(pt1, dtype=float).ndim == 2 and np.array(pt2, dtype=float).ndim == 1:
+        pt1 = np.array(pt1, dtype=float)
+        pt2 = np.array(pt2, dtype=float)
         return np.sqrt(np.power(pt2[0] - pt1[:, 0], 2) + np.power(pt2[1] - pt1[:, 1], 2))
     else:
         print("unsupported dim in  distance(pt1, pt2)")
