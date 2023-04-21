@@ -18,8 +18,16 @@ class ComRobotAF_Local_Pos(ComRobotAFfast):
         super().__init__(pos)
 
     def sense(self):
+        """
+        Updates the agent's fitness, food, and population information based on its position and environment objects.
+        """        
         super().sense()
-        # 添加更新自身fitness的算法
+        # Add an algorithm to update your fitness
         self.mFitness = self.getPosFit(self.pos)
+
+        # Retrieve all 'ComFish' food items in the environment and store them in the agent's `mFood` attribute
         self.mFood = self.mProcessedInfo['ComFish'].values()
+        
+        # Retrieve information about other agents in the environment and store it in the agent's `mPopulation` attribute
+        # The retrieved information is stored as a dictionary where the keys are the agents' names and the values are their positions
         self.mPopulation = self.mProcessedInfo['Pos']

@@ -95,19 +95,16 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ae624325b96ee6b4f395c50e69b76cf41"><td class="memItemLeft" align="right" valign="top"><a id="ae624325b96ee6b4f395c50e69b76cf41" name="ae624325b96ee6b4f395c50e69b76cf41"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>getTransferMat</b> (x)</td></tr>
+<tr class="memitem:ae624325b96ee6b4f395c50e69b76cf41"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d22/namespace_simulation_1_1_com_robot_a_f__niche__markov.html#ae624325b96ee6b4f395c50e69b76cf41">getTransferMat</a> (x)</td></tr>
 <tr class="separator:ae624325b96ee6b4f395c50e69b76cf41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0b7c5ca47497fd8d0bf9b2f9916da8a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d22/namespace_simulation_1_1_com_robot_a_f__niche__markov.html#aa0b7c5ca47497fd8d0bf9b2f9916da8a">loss</a> (x, S_0, k, S_t)</td></tr>
 <tr class="separator:aa0b7c5ca47497fd8d0bf9b2f9916da8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac99f1b5872b39184ee55605a57836d59"><td class="memItemLeft" align="right" valign="top"><a id="ac99f1b5872b39184ee55605a57836d59" name="ac99f1b5872b39184ee55605a57836d59"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>mean_squared_error</b> (y, t)</td></tr>
+<tr class="memitem:ac99f1b5872b39184ee55605a57836d59"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d22/namespace_simulation_1_1_com_robot_a_f__niche__markov.html#ac99f1b5872b39184ee55605a57836d59">mean_squared_error</a> (y, t)</td></tr>
 <tr class="separator:ac99f1b5872b39184ee55605a57836d59"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a226c1fef2c7bc1582dc9d9fabf459257"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d22/namespace_simulation_1_1_com_robot_a_f__niche__markov.html#a226c1fef2c7bc1582dc9d9fabf459257">numerical_gradient</a> (x, S_0, k, S_t)</td></tr>
 <tr class="separator:a226c1fef2c7bc1582dc9d9fabf459257"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5eebbef0a5538e12d3ea751cb6b16509"><td class="memItemLeft" align="right" valign="top"><a id="a5eebbef0a5538e12d3ea751cb6b16509" name="a5eebbef0a5538e12d3ea751cb6b16509"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>gradient_descent</b> (init_x, S_0, k, S_t, lr=lr, step_num=100)</td></tr>
-<tr class="separator:a5eebbef0a5538e12d3ea751cb6b16509"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38b0caaa3db9fc5b08dc9bb1bc30fe0d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d22/namespace_simulation_1_1_com_robot_a_f__niche__markov.html#a38b0caaa3db9fc5b08dc9bb1bc30fe0d">gradient_descent</a> (init_x, S_0, k, S_t, lr=0.01, step_num=100)</td></tr>
+<tr class="separator:a38b0caaa3db9fc5b08dc9bb1bc30fe0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef410bb1c1cee20bdb816d76ff03ab15"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/d22/namespace_simulation_1_1_com_robot_a_f__niche__markov.html#aef410bb1c1cee20bdb816d76ff03ab15">MarkovChain</a> (S_0, P, k)</td></tr>
 <tr class="separator:aef410bb1c1cee20bdb816d76ff03ab15"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -129,6 +126,96 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>k</b> = 20</td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><pre class="fragment">自监督学习马尔可夫链小生态人工鱼群算法
 </pre> </div><h2 class="groupheader">Function Documentation</h2>
+<a id="ae624325b96ee6b4f395c50e69b76cf41" name="ae624325b96ee6b4f395c50e69b76cf41"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae624325b96ee6b4f395c50e69b76cf41">&#9670;&#160;</a></span>getTransferMat()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Simulation.ComRobotAF_niche_markov.getTransferMat </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>x</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">This function takes in a list x and returns a transfer matrix.
+
+Args:
+    x (list): A list of floats.
+
+Returns:
+    numpy.ndarray: A 2D numpy array of shape (n, n) where n is the length of x.
+</pre> 
+</div>
+</div>
+<a id="a38b0caaa3db9fc5b08dc9bb1bc30fe0d" name="a38b0caaa3db9fc5b08dc9bb1bc30fe0d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a38b0caaa3db9fc5b08dc9bb1bc30fe0d">&#9670;&#160;</a></span>gradient_descent()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Simulation.ComRobotAF_niche_markov.gradient_descent </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>init_x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>S_0</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>k</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>S_t</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>lr</em> = <code>0.01</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>step_num</em> = <code>100</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">This function performs gradient descent optimization to find the optimal state parameters x.
+
+Args:
+    init_x (list/numpy.ndarray): Initial values of the state parameters.
+    S_0 (list/numpy.ndarray): A list or array of floats representing the starting state.
+    k (int): An integer representing the target iteration number for updating the state according to the
+              transition matrix.
+    S_t (list/numpy.ndarray): A list or array of floats representing the target state.
+    lr (float): Learning rate of gradient descent. Default value is set to 0.01.
+    step_num (int): Number of iterations. Default value is set to 100.
+
+Returns:
+    numpy.ndarray: The optimized state parameters x.
+</pre> 
+</div>
+</div>
 <a id="aa0b7c5ca47497fd8d0bf9b2f9916da8a" name="aa0b7c5ca47497fd8d0bf9b2f9916da8a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa0b7c5ca47497fd8d0bf9b2f9916da8a">&#9670;&#160;</a></span>loss()</h2>
 
@@ -166,10 +253,19 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>k</b> = 20</td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">x: 状态参数，用于构建概率的状态转移矩阵
-S_0: 初始状态
-k: 目标迭代时间
-S_t: 目标状态
+<pre class="fragment">This function takes in state parameters x, starting state S_0, target iteration number k and target state S_t,
+and returns the mean squared error between the actual and target states after Markov Chain iteration of k.
+
+Args:
+    x (list): A list of floats representing state parameters used to build a probability transition matrix.
+    S_0 (list/numpy.ndarray): A list or array of floats representing the starting state.
+    k (int): An integer representing the target iteration number for updating the state according to the
+              transition matrix.
+    S_t (list/numpy.ndarray): A list or array of floats representing the target state.
+
+Returns:
+    float: The mean squared error between the resulting and target states after Markov Chain iteration of k.
+      'getTransferMat' and 'MarkovChain' functions should be imported before calling this function.
 </pre> 
 </div>
 </div>
@@ -204,10 +300,53 @@ S_t: 目标状态
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">S_0: 初始状态
-P: 概率的状态转移矩阵
-k: 迭代次数
-return: S_k
+<pre class="fragment">This function takes in a starting state S_0, a probability transition matrix P and a target iteration number k,
+and returns the resulting state after Markov Chain iteration of k.
+
+Args:
+    S_0 (list/numpy.ndarray): A list or array of floats representing the starting state.
+    P (numpy.ndarray): A 2D numpy array representing the probability transition matrix.
+    k (int): An integer representing the target iteration number for updating the state according to the
+              transition matrix.
+
+Returns:
+    numpy.ndarray: The resulting state after Markov Chain iteration of k.
+</pre> 
+</div>
+</div>
+<a id="ac99f1b5872b39184ee55605a57836d59" name="ac99f1b5872b39184ee55605a57836d59"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac99f1b5872b39184ee55605a57836d59">&#9670;&#160;</a></span>mean_squared_error()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">Simulation.ComRobotAF_niche_markov.mean_squared_error </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>t</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">This function takes two arrays y and t and computes the mean squared error between them.
+
+Args:
+    y (list/numpy.ndarray): A list or array of floats.
+    t (list/numpy.ndarray): A list or array of floats.
+
+Returns:
+    float: The mean squared error between y and t.
 </pre> 
 </div>
 </div>
@@ -248,10 +387,18 @@ return: S_k
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">x: 状态参数，用于构建概率的状态转移矩阵
-S_0: 初始状态
-k: 目标迭代时间
-S_t: 目标状态
+<pre class="fragment">This function takes in state parameters x, starting state S_0, target iteration number k and target state S_t,
+and returns its numerical gradient.
+
+Args:
+    x (list): A list of floats representing state parameters used to build a probability transition matrix.
+    S_0 (list/numpy.ndarray): A list or array of floats representing the starting state.
+    k (int): An integer representing the target iteration number for updating the state according to the
+              transition matrix.
+    S_t (list/numpy.ndarray): A list or array of floats representing the target state.
+
+Returns:
+    numpy.ndarray: The numerical gradient of state parameters x.
 </pre> 
 </div>
 </div>

@@ -41,87 +41,139 @@ class ComRobotAF(ComRobot):
         self.mObjectType = "ComRobotAF"       # 用于标识当前物体类别
         self.mFoodName = "ComFish"         # 设定用作食物的目标
 
+    # Define a method called 'update' within a class that takes no parameters.
     def update(self):
-        # if (self.pos == self.target).all():
-        #     self.chooseRandotarget()
+        """
+        This method is used to update the state of the object.
+
+        It calls the 'sense' and 'processInfo' methods, both of which update information about the environment by looking at the 
+        current state of the object.
+
+        If there are other objects present in the environment (that have been sensed), the value of 'mMaxCrowded' instance variable 
+        is set as 1 divided by the total number of robot agents present. Otherwise, 'mMaxCrowded' will be set to 0.
+
+        If the robot is not currently communicating with other agents and its stopping criterion is met, it tries to explore 
+        new strategies i.e. it examines the outcome of 'swarm' and 'follow' methods and selects the best approach based on the maximum fitness value.
+        If neither strategy works, it will execute the 'prey' strategy.
+
+        If the robot is not communicating with any other robots, the data stored in 'mSenseInfo' will be cleared.
+
+        At the end, this method calls the 'move' method on the object, which moves it to the next position based on its strategy choice.
+        """
+        
+        # Call the 'sense' and 'processInfo' methods to update the object's internal state.
         self.sense()
         self.processInfo()
-        
+
+        # Update the value of 'mMaxCrowded' according to the number of robots present.
         if len(self.mPopulation) > 0:
             self.mMaxCrowded = 1 / len(self.mPopulation)
         else:
             self.mMaxCrowded = 0
-        if self.isStopping():       # 只有当机器人处于停止状态，才重新选择目标
-            # 试探聚群和跟随
+
+        if self.isStopping():  # Only if the stopping criterion is met, robot needs to choose a new target.
             
+            # Explore new strategies - swarm and follow - to update its status.
             swarm_fitness = self.swarm()
             follow_fitness = self.follow()
-            
-            # 比较试探的结果
+
+            # Compare the results of exploration and choose best approach based on the maximum fitness value.
             if swarm_fitness > self.mFitness or follow_fitness > self.mFitness:
-                # 选出最优的决策，执行
                 if swarm_fitness > follow_fitness:
                     self.swarm()
-                    # print("swarm")
                 else:
                     self.follow()
-                    # print("follow")
-            else:  # 聚群和跟随都不合适则执行觅食
+            else:  # If neither strategy works, execute the 'prey' strategy.
                 prey_fitness = self.prey()
-                # print("prey_fitness: %f"%prey_fitness)
+
+        # Clear 'mSenseInfo' data if currently not communicating.
         if not self.isCommunicating:
             self.mSenseInfo.clear()
+
+        # Finally, move the robot to the next position based on its current strategy choice.
         self.move()
+
         
         
     @staticmethod
     def randomTrue(probability=0.5):
+        """This function returns True or False based on a given probability.
+
+        Args:
+            probability (float, optional): The probability of the result being True. Defaults to 0.5.
+
+        Returns:
+            bool: True or False based on the given probability.
         """
-        随机真假
-        :param probability:  结果为True的概率
-        :return:
-        """
-        if np.random.rand() < probability:
+        
+        # Generate a random number between 0 and 1 using Python's built-in random module. 
+        # If it's less than the given probability, return True.
+        if random.random() < probability:
             return True
         else:
+            # If the generated number is greater than or equal to the given probability, return False.
             return False
 
+
     def sense(self):
-        super().sense()
+        """This function calls the sense function of the parent class.
+
+        This function is a method of a child class which inherits from another class that has a sense() method. By calling 
+        super().sense(), we can call the sense() method of the parent class.
+
+        Returns:
+            None
+        """
+        super().sense() # Calls the sense() method of the parent class
+
         # 添加更新自身fitness的算法
         # self.mFitness = self.getPosFit(self.pos)
         # self.mFood = self.mProcessedInfo['ComFish'].values()
         # self.mPopulation = self.mProcessedInfo[self.mObjectType]
     
     def prey(self):
+        """This function is responsible for executing the prey operator in the implemented optimization algorithm.
+
+        This function tries to find a prey by searching for a position with better fitness value compared to the current 
+        position. If it fails to find a better position after mMaxPreyNum attempts, it returns a random position to avoid 
+        getting stuck in local optima.
+
+        Returns:
+            float: The fitness value of the new target position.
         """
-        觅食算子，若达到最大觅食尝试尝试次数，目标适应度依然小于当前适应度，则返回随机位置
-        :return:
-        """
+        # Keep trying to find a better position until we reach mMaxPreyNum attempts or we find a position with better 
+        # fitness than the current position.
         for _ in range(self.mMaxPreyNum):
-            pos = self.getRandomSensePos()
-            fitness = self.getPosFit(pos)
-            if fitness > self.mFitness:
-                # print("prey")
+            pos = self.getRandomSensePos()  # Get a random neighboring position
+            fitness = self.getPosFit(pos)  # Calculate the fitness at the new position
+            if fitness > self.mFitness:  # If the fitness is better than the current position, set it as the new target
                 self.target = pos
                 return fitness
+        
+        # If we can't find a better position after mMaxPreyNum attempts, we choose a random position and return its fitness.
         pos = self.getRandomSensePos()
         self.target = pos
         self.mFollowedAgentID = None
-        # print("random move")
         return self.getPosFit(pos)
 
+
     def swarm(self):
+        """This function is responsible for executing the swarm operator in the implemented optimization algorithm.
+
+        This function calculates the center of the population and its fitness value. If the fitness improves compared 
+        to the current position and it's not too crowded around, we set the center as the new target for the agent.
+        
+        Returns:
+            float: The fitness value of the new target position (-1 if no suitable target was found).
         """
-        聚群算子，计算聚群目标，计算目标适应度
-        :return: 目标适应度
-        """
-        # 若人工鱼数量大于0，计算中心点
+        # Calculate the center of the population (only if we have artificial fish agents)
         if len(self.mPopulation) > 0:
             center = np.array([0.0, 0.0, 0.0], dtype=np.float32)
             for agent_pos in self.mPopulation.values():
                 center += agent_pos
             center /= len(self.mPopulation)
+            
+            # Make sure the center doesn't go outside the boundary
             if center[0] > settings.CS_ENVSIZE[0]:
                 center[0] = settings.CS_ENVSIZE[0]
             if center[1] > settings.CS_ENVSIZE[1]:
@@ -134,40 +186,54 @@ class ComRobotAF(ComRobot):
                 center[1] = 0
             if center[2] < 0:
                 center[2] = 0
-
-            # 计算该点适应度
-            fitness = self.getPosFit(center)
-            # print("swarm_fitness %f"%fitness)
             
+            # Calculate the fitness value at the new center position
+            fitness = self.getPosFit(center)
+            
+            # If the fitness is better than the current position and is not too crowded around, set the center as the 
+            # new target
             if fitness > self.mFitness and not self.isCrowded(fitness, self.mFitness, center):
                 self.target = center
                 return fitness
-        # 若人工鱼数量等于0，或适应度无法改善，或过于拥挤
-
+        
+        # If we can't set the center as the new target, reset the followed agent ID and return -1
         self.mFollowedAgentID = None
         return -1
 
+
     def getAgentsInRangeOfPos(self, pos: np.ndarray, r: float):
+        """Return all agents within a certain range of a given position.
+
+        Args:
+            pos (np.ndarray): The center position.
+            r (float): The radius around the center to search for agents.
+
+        Returns:
+            list: A list of tuples containing the agent IDs and their positions.
         """
-        获得点pos半径range内的Agent
-        :return: [[id: pos], [id: pos], ...]
-        """
+        # Get the positions and keys of all agents
         agents_pos_group = list(self.mPopulation.values())
         agents_keys_group = list(self.mPopulation.keys())
+
+        # Create a KD-Tree to find all agents within the specified range
         kd_tree = KDtree(agents_pos_group)
         inds, _ = kd_tree.query_radius(pos, r)
         inds = inds[0]
+
+        # Return the positions and IDs of all agents within range
         return [(agents_keys_group[ind], agents_pos_group[ind]) for ind in inds]
 
     def follow(self):
+        """This function is responsible for executing the follow operator in the implemented optimization algorithm.
+
+        This function finds the fish with the highest fitness value within its perception range.
+        If the fish has a higher fitness than the current position and it's not too crowded around, we set the fish as the 
+        new target for the agent.
+        
+        Returns:
+            float: The fitness value of the new target position (-1 if no suitable target was found).
         """
-        追尾算子，计算追尾目标，计算目标适应度
-        1、找到感知范围内适应度最大的人工鱼
-        2、如果适应度比自己大，且不拥挤
-        3、则向该人工鱼移动一步
-        :return: 目标适应度
-        """
-        # 找到感知范围内适应度最大的人工鱼
+        # Find the fish with the highest fitness within the perception range
         agent_max_pos = None
         agent_max_id = None
         fitness_max = 0
@@ -178,23 +244,27 @@ class ComRobotAF(ComRobot):
                 fitness_max = fitness
                 agent_max_pos = agent_pos
                 agent_max_id = agent_id
-        # 如果适应度比自己大
+        # If the fish has a higher fitness than the current position and it's not too crowded around, set the fish as 
+        # the new target for the agent
         # print("follow_fitness %f"%fitness_max)
         if fitness_max > self.mFitness and agent_max_pos is not None:
             if self.isCrowded(fitness_max, self.mFitness, agent_max_pos):  # 感知该人工鱼的拥挤度，如果拥挤度不大，则向该人工鱼移动一步
                 self.target = agent_max_pos
                 return fitness_max
         self.mFollowedAgentID = agent_max_id
-        # 否则返回-1
+
         return -1
 
     def isCrowded(self, target_fitness, current_fitness, target_pos):
-        """
-        判断是否拥挤
-        :param target_fitness:      目标适应度
-        :param current_fitness:     当前适应度
-        :param target_pos:          目标坐标
-        :return:                    是否拥挤
+        """Check whether a certain position is too crowded.
+
+        Args:
+            target_fitness (float): The fitness value of the target position.
+            current_fitness (float): The fitness value of the current position.
+            target_pos (np.ndarray): The target position to check for overcrowding.
+
+        Returns:
+            bool: True if the position is too crowded, False otherwise.
         """
         agent_num_in_range = len(self.getAgentsInRangeOfPos(target_pos, mySettings.CS_CROWDEDRANGE))
 
@@ -206,13 +276,17 @@ class ComRobotAF(ComRobot):
             return False
 
     def getPosFit(self, position):
-        """
-        适应度计算
-        :param position:
-        :return: 适应度
+        """Calculate the fitness value at a given position.
+
+        Args:
+            position (np.ndarray): The position to calculate the fitness value at.
+
+        Returns:
+            float: The fitness value at the given position.
         """
         fitness = 0.0
         
+        # Calculate the fitness based on the distance to each food source
         if len(self.mFood) > 0:
             for food_pos in self.mFood:
                 fitness_tmp = 1 - (np.linalg.norm(np.array(position, dtype=np.float32) - food_pos, ord=2) / self.mSenseDistance)
@@ -223,9 +297,10 @@ class ComRobotAF(ComRobot):
         return fitness
 
     def randomSensePosFit(self):
-        """
-        获得当前感知范围内随机位置的适应度
-        :return: 适应度, 位置
+        """Return the fitness value and position of a randomly chosen point within the agent's perception range.
+
+        Returns:
+            tuple: A tuple containing the fitness value and position.
         """
         pos = self.getRandomSensePos()
         fitness = self.getPosFit(pos)
@@ -233,44 +308,65 @@ class ComRobotAF(ComRobot):
 
     def getRandomSensePos(self):
         """
-        获得视野内的随机位置
-        :return: 位置 np.float32
+        This function returns a random position within the sensing range of a robot.
+        
+        Args:
+            None
+        
+        Returns:
+            new_pos (numpy.ndarray): A 3D numpy array containing x, y, z coordinates of the new position.
+            
         """
+        
+        # Calculate minimum and maximum values for x, y and z coordinates of the random position
         if self.pos[0] - self.mSenseDistance > -mySettings.CS_ENVSIZE[0]:
             x_min = self.pos[0] - self.mSenseDistance
         else:
             x_min = -mySettings.CS_ENVSIZE[0]
+            
         if self.pos[0] + self.mSenseDistance < mySettings.CS_ENVSIZE[0]:
             x_max = self.pos[0] + self.mSenseDistance
         else:
             x_max = mySettings.CS_ENVSIZE[0]
+            
         if self.pos[1] - self.mSenseDistance > -mySettings.CS_ENVSIZE[1]:
             y_min = self.pos[1] - self.mSenseDistance
         else:
             y_min = -mySettings.CS_ENVSIZE[1]
+            
         if self.pos[1] + self.mSenseDistance < mySettings.CS_ENVSIZE[1]:
             y_max = self.pos[1] + self.mSenseDistance
         else:
             y_max = mySettings.CS_ENVSIZE[1]
+            
         if self.pos[2] - self.mSenseDistance/2 > -mySettings.CS_ENVSIZE[2]:
             z_min = self.pos[2] - self.mSenseDistance/2
         else:
             z_min = -mySettings.CS_ENVSIZE[2]
+            
         if self.pos[2] + self.mSenseDistance/2 < mySettings.CS_ENVSIZE[2]:
             z_max = self.pos[2] + self.mSenseDistance/2
         else:
             z_max = mySettings.CS_ENVSIZE[2]
 
+        # Generate random values for x, y and z coordinates within the calculated ranges until a suitable position is found
         while True:
             x = random.uniform(x_min, x_max)
             y = random.uniform(y_min, y_max)
             z = random.uniform(z_min, z_max)
             new_pos = np.array([x, y, z], dtype=np.float32)
-            angle_in_xy = ComObject.getAngleBetweenXandVector(new_pos, self.pos, plat='xy') - self.mDirection     # xy平面内的偏航角度
+            
+            # Calculate angles between the new position and the robot's current position in xy plane
+            angle_in_xy = ComObject.getAngleBetweenXandVector(new_pos, self.pos, plat='xy') - self.mDirection
+            
+            # If the robot is 3D, also calculate the angle between the new position and the xy plane
             if self.mRobotType == '3D':
-                angle_with_xy = ComObject.getAngleBetweenXandVector(new_pos, self.pos, plat='o-xy')   # 与xy平面的夹角
+                angle_with_xy = ComObject.getAngleBetweenXandVector(new_pos, self.pos, plat='o-xy')
+                
+            # Check if the new position is within the sensing range and makes an angle with the robot's direction within a certain range
             if np.linalg.norm(new_pos - self.pos) < self.mSenseDistance:
                 if angle_in_xy >= -self.mSenseAngle and angle_in_xy <= self.mSenseAngle:
+                    # If the robot is 3D, also check if the new position makes an angle with the xy plane within the same range
                     if self.mRobotType == '3D':
                         if angle_with_xy >= -self.mSenseAngle and angle_with_xy <= self.mSenseAngle:                
                             return new_pos

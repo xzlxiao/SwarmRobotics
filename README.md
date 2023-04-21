@@ -1,12 +1,6 @@
 # SwarmRobotics
 
-The project is a Swarm Robotics simulation platform implemented using Python and Matplotlib.It allows users to create custom Swarm Robotics algorithms and test and evaluate them in a simulated environment.The English version is machine translation, the Chinese version of the readme is more readable, it is recommended to refer to the Chinese version.Automatically translated scripts are:
-
-
-```bash
-python Tools/translate_readme.py
-```
-
+The project is a Swarm Robotics simulation platform implemented using Python and Matplotlib.It allows users to create custom Swarm Robotics algorithms and test and evaluate them in a simulated environment.
 
 [English](./README.md)|[中文](./readme_chinese.md)
 
@@ -14,7 +8,7 @@ python Tools/translate_readme.py
 
 To install the project, you need to perform the following steps:
 
-*   Clone this item:
+*   Clone this project:
 
 
 ```bash
@@ -141,7 +135,7 @@ Contributors:
 
 [CONTRIBUTING.md]()
 
-## 6. Permits
+## 6. License
 
 It is licensed under the GPL (GNU General Public License). For more information, see license.
 

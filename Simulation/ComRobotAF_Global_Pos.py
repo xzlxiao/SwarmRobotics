@@ -23,10 +23,28 @@ class ComRobotAF_Global_Pos(ComRobotAFfast):
         super().__init__(pos)
 
     def sense(self):
+        """Update agent's fitness based on its position and environment objects.
+        
+        This method updates the fitness value of the current instance using a certain algorithm,
+        gets the positions of all objects with a certain name from the environment,
+        gets a list of neighbor agents with a certain object type from the environment,
+        and sets each agent's position in the population dictionary to its own position.
+        
+        Returns:
+            None.
+        """
+        # This calls the 'sense' method of the superclass of the current class.
         super().sense()
-        # 添加更新自身fitness的算法
+
+        # This updates the fitness value of the current instance using a certain algorithm.
         self.mFitness = self.getPosFit(self.pos)
+
+        # This gets the positions of all objects with a certain name from the environment.
         self.mFood = getPosByType(self.mFoodName)
+
+        # This gets a list of neighbor agents with a certain object type from the environment.
         neighors = getObjectByType(self.mObjectType)
+
+        # This loop sets each agent's position in the population dictionary to its own position.
         for agent in neighors:
             self.mPopulation[agent.mId] = agent.pos

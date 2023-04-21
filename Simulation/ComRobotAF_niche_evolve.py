@@ -26,7 +26,12 @@ class ComRobotAF_niche_evolve(ComRobotAF_niche):
         self.isDistancedTravel = False # 子群突变会主群，进行远距离移动，该值为True，到达目的地后变为False
         self.mKeepSpeciesTime = 0.0    # 维持种群的时间
     def update(self):
+        """Update robot status and actions."""
+        
+        # Increment time since last species change
         self.mKeepSpeciesTime += settings.CS_INTERVAL
+        
+        # If this is robot 0, print population information
         if self.mId == 0:
             main_pop = len(ComRobotAF_niche.PopulationGroup[-1])
             sub_pop0 = len(ComRobotAF_niche.PopulationGroup[0])
@@ -39,6 +44,8 @@ class ComRobotAF_niche_evolve(ComRobotAF_niche):
             sub_pop7 = len(ComRobotAF_niche.PopulationGroup[7])
             sub_pop8 = len(ComRobotAF_niche.PopulationGroup[8])
             sub_pop9 = len(ComRobotAF_niche.PopulationGroup[9])
+            
+            # Print population counts for each subgroup
             print("""
             main pop: {}
             sub0: {}
@@ -53,58 +60,82 @@ class ComRobotAF_niche_evolve(ComRobotAF_niche):
             sub9: {}
             ---------------------------------
             """.format(main_pop, sub_pop0, sub_pop1, sub_pop2, sub_pop3, sub_pop4, sub_pop5, sub_pop6, sub_pop7, sub_pop8, sub_pop9))
-
+        
+        # Update perception information
         self.sense()
+        
+        # Process information to update internal state
         self.processInfo()
         
+        # If robot is not currently in a subgroup, attempt to find a new subgroup based on nearby food objects
         if self._species == -1:
             for food in self.mFoodAll.values():
-                # print(food)
                 if not ComRobotAF_niche.SpecialPool[food.mId]:
                     if self.distance(food.pos, self.pos) < C_TH:
                         print("set species {}".format(food.mId))
+                        
+                        # Set this robot's subgroup to the one associated with the nearest food object
                         ComRobotAF_niche.SpecialPool[food.mId] = True
                         current_population = [(agent_id, agent_pos) for agent_id, agent_pos in ComRobotAF_niche.PopulationGroup[-1].items()]
                         for agent_id, agent_pos in current_population:
                             if self.distance(agent_pos, self.pos) < R_I:
                                 self.mPopulationAll[agent_id].setSpecies(food.mId)
                         break
+                        
                 else:
                     if not self.isDistancedTravel:
                         if self.distance(food.pos, self.pos) < R_I:
+                            # If robot is within range of a food source and already in a subgroup, update its position and fitness
                             self.mPopulationAll[self.mId].setSpecies(food.mId)
                         else:
-                            # 突变为新物种的概率
+                            # If robot is too far from food source, there is a chance it will mutate into a new subgroup
                             new_species_id = self.mutateToSubspecies()
                             if new_species_id != -1:
                                 self.setSpecies(new_species_id)
+        
         else:
+            # If the robot is already in a subgroup...
             
-            # if len(self.mFood) > 0:
-            #     print(self.distance(self.mPos, self.mFood[0]))
-            #     print(self.getPosFit(self.mPos))
-                
             if self.isReturnToMainSwarm():
+                # If robot is too far from other robots in its subgroup, return to main swarm
                 print("return main swarm: {}.{} -> main".format(self._species, self.mId))
                 self.randomDistancedMove()
-                # with open("/media/storage1/Code/data/AFSA/20220602003/log1.txt", 'a') as file:
-                #     file.write("return main swarm: {}.{} -> main\n".format(self._species, self.mId))
                 self.setSpecies(-1)
+            
+            if self._species == -1:
+                # If robot is not in a subgroup, move randomly
+                self.randomMove()
+            else:
+                # Otherwise, use AF algorithm to move towards other robots in the same subgroup
+                self.AFfast()
+            
+            # Move the robot based on its updated position and orientation
+            self.move()
 
-        if self._species == -1:
-            self.randomMove()
-        else:
-            self.AFfast()
-        self.move()
-
+    # This is a method called setSpecies and it takes a parameter called species_id
     def setSpecies(self, species_id):
+        """
+        This method sets the value of species_id for an instance of a class.
+        
+        Args:
+            species_id (int): The id of the species being set
+        
+        Returns:
+            None
+        """
+        # The super() function is used to call a method from a parent class
         super().setSpecies(species_id)
+        # This line of code initializes an instance variable mKeepSpeciesTime to 0.0
         self.mKeepSpeciesTime = 0.0
+
 
     def isReturnToMainSwarm(self):
         """
-        是否突变为主群物种
-        """
+        Determines whether or not a species will return to the main swarm.
+        
+        Returns:
+            bool: True if the species mutates into the main swarm, False otherwise.
+        """     
         if random.random() < self.getMainspeciesMutationChance():
             return True
         # aggregation_degree = self.nicheAggregationDegree()
@@ -123,45 +154,89 @@ class ComRobotAF_niche_evolve(ComRobotAF_niche):
         #         return True 
         return False
 
-    def mutateToSubspecies(self)->int:
+    # This is a method called mutateToSubspecies that returns an integer value
+    def mutateToSubspecies(self) -> int:
+        """
+        Mutates an agent to a new subspecies based on a mutation chance and existing species data.
+        
+        Returns:
+            int: The ID of the new subspecies or -1 if no mutations occurred.
+        """        
+        # Enumerate loops over an iterable and returns tuples containing the index and value of each element in the iterable
+        # SpecialPool is a list of booleans indicating whether or not a species has been initialized
         for species_id, is_species_init in enumerate(ComRobotAF_niche.SpecialPool):
             if is_species_init:
+                # random.random() returns a random float between 0 and 1
+                # self.getSubspeciesMutationChance() retrieves a mutation chance based on the given population group from an instance variable of the class
+                # ComRobotAF_niche.PopulationGroup[species_id] retrieves the population group of the given species from a class constant
+                # If the random float is less than the mutation chance, the method returns the species ID
                 if random.random() < self.getSubspeciesMutationChance(ComRobotAF_niche.PopulationGroup[species_id]):
                     return species_id
+        # If no mutations occurred, the method returns -1
         return -1
 
-    def getSubspeciesMutationChance(self, population)->Num:
-        '''
-        获得突变为某个子群的概率，距离越近，应该突变概率越高
-        '''
+
+    # This is a method that calculates the probability of an agent mutating to a certain subspecies based on distance and population size
+    def getSubspeciesMutationChance(self, population) -> Num:
+        """
+        Calculates the probability of an agent mutating to a certain subspecies based on distance and population size.
+        
+        Args:
+            population: The ID of the population group.
+        
+        Returns:
+            float: The mutation chance.
+        """
+        # len() returns the number of elements in a list or string
+        # self.mPopulation refers to the current population ID
+        # len(self.mPopulation) finds the number of agents in the current population
+        # len(self.mPopulationAll) finds the total number of agents across all populations
+        # settings.CS_INTERVAL is a constant value
         return 1.0 * len(self.mPopulation)/len(self.mPopulationAll) * settings.CS_INTERVAL
 
-    def getMainspeciesMutationChance(self)->Num:
-        '''
-        获得突变为主群的概率
-        '''
+    # This is a method that calculates the probability of an agent mutating to the main species based on population size
+    def getMainspeciesMutationChance(self) -> Num:
+        """
+        Calculates the probability of an agent mutating to the main species based on population size.
+        
+        Returns:
+            float: The mutation chance.
+        """
         return 1.0 * len(self.mPopulation)/len(self.mPopulationAll) * settings.CS_INTERVAL
 
+    # This is a method that randomly moves the agent based on distance
     def randomDistancedMove(self):
-        '''
-        随机移动，越远的越
-        '''
-        # self.chooseRandomTarget()
+        """
+        Randomly moves the agent based on distance.
+        """
+        # The chooseRandomDistancedTarget() method chooses a new target for the agent
         self.chooseRandomDistancedTarget()
         self.isDistancedTravel = True
 
     
 
+    # Define a method named `move` for the current class instance (self)
     def move(self):
+        """
+        This method invokes super().move() and sets self.isDistancedTravel = False if self.isStopping() is True.
+        """
+        # Calls the superclass method `move()`
         super().move()
+        
+        # Checks whether the current object is stopping, and updates the value of self.isDistancedTravel accordingly
         if self.isStopping():
             self.isDistancedTravel = False
 
+
     def getPosFit(self, position):
         """
-        适应度计算
-        :param position:
-        :return: 适应度
+        Calculates the fitness of the agent's current position based on food locations.
+        
+        Args:
+            position: The position of the agent in the environment.
+        
+        Returns:
+            float: The fitness value.
         """
         fitness = 0.0
         

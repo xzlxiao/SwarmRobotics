@@ -22,12 +22,18 @@ class ComStage2D(ComStage):
         self.mStageType = '2D'
 
     def setEnvSize(self, _size=(1000, 1000)):
+        """
+        This function sets the size of the environment.
+
+        Args:
+            _size (tuple, optional): The size of the environment. Defaults to (1000, 1000).
+        """
         self.mEnvSize = _size
+
 
     def initEnv(self):
         """
-        初始化环境
-        :return:
+        This function initializes the environment by creating a figure and an axis object.
         """
         if self.mFig is None:
             self.mFig = plt.figure(figsize=self.mFigSize, constrained_layout=True)
@@ -36,22 +42,24 @@ class ComStage2D(ComStage):
         for surf in self.mSurfaceGroup:
             surf.setAx(self.mAx)
 
-    
+
     def update(self):
+        """_summary_
+        """        
         if self.mAx:
             self.mAx.cla()
             self.mAx.grid(False) 
             self.mAx.set_xlim(-self.mEnvSize[0], self.mEnvSize[0])
             self.mAx.set_ylim(-self.mEnvSize[1], self.mEnvSize[1])
 
-        # 更新障碍物信息
+        # Update obstacles
         updateObstacle_kdtree(self.mObstacleTypeList)
         
         for surf in self.mSurfaceGroup:
             surf.update()
             surf.draw()
             
-
+        # Update and draw robots
         for ind, robot in enumerate(self.mRobotList.nodes):
             # if ind == 0:
             #     print(robot.mPos)
@@ -59,12 +67,12 @@ class ComStage2D(ComStage):
             self.mRobotPosList[ind] = robot.pos
             robot.draw(self.mAx)
             robot.update()
-        
-        for stuff in self.mStuffList:
-            
-            stuff.draw(self.mAx)
-            stuff.update()
-        
+        t1 = time.time()
+        # Update and draw stuff
+        [[stuff.update(), stuff.draw(self.mAx)] for stuff in self.mStuffList]
+        t2 = time.time()
+        print('update time: ', t2-t1)
+
         if self.isFixedComNet:
             if self.isComConstrained:
                 self.mRobotList.clear_edges()
@@ -72,7 +80,7 @@ class ComStage2D(ComStage):
                     if distance(edge[0].pos, edge[1].pos) < edge[0].mCommunicationRange:
                         self.mRobotList.add_edge(edge[0], edge[1])
         else:
-        # 获得边的关系，即每个机器人与通信范围内的机器人组成的对应关系
+             # Set communication between robots based on proximity
             self.mRobotList.clear_edges()
             kd_tree = KDtree(self.mRobotPosList)
             for ind, pos in enumerate(self.mRobotPosList):
@@ -108,7 +116,7 @@ class ComStage2D(ComStage):
                         for range_ind in robots_in_range_inds:
                             self.mRobotList.add_edge(robot, list(self.mRobotList.nodes)[range_ind])
         
-        # 通信
+        # Update communications between robots
         edges = self.mRobotList.edges
         for edge in edges:
             edge[0].communicateWith(edge[1])

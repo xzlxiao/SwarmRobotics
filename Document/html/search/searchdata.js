@@ -1,9 +1,9 @@
 var indexSectionsWithContent =
 {
-  0: "abcdefghiklmnopqrstuv群",
+  0: "_abcdefghijklmnopqrstuv群",
   1: "acdkopv",
   2: "cdes",
-  3: "abcdfghilmnpqrsu",
+  3: "_abcdefghijlmnpqrstu",
   4: "st群"
 };
 

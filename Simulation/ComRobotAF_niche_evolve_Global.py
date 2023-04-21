@@ -35,32 +35,35 @@ class ComRobotAF_niche_evolve_Global(ComRobotAF_niche_evolve):
 
 
     def sense(self):
-        super().sense()
-        # 添加更新自身fitness的算法
+        """Update perception information for the robot."""
         
-        # self.mFood = getPosByType(self.mFoodName)
-        # 获取所有食物
+        # Call parent class's sense method to get basic sensor information (e.g. position, orientation)
+        super().sense()
+        
+        # Add algorithm to update self fitness
+        
+        # Get all food objects
         foods = getObjectByType(self.mFoodName)
         
+        # Update list of all available food objects (indexed by ID)
         for food in foods:
-            
             self.mFoodAll[food.mId] = food
         
-        # 根据种群类别获取食物,更新食物位置
+        # Based on species type, update list of available food and its positions
         self.mFood.clear()
         if self._species >= 0:
             self.mFood.append(self.mFoodAll[self._species].pos)
 
-        # 获取所有机器人
+        # Get all neighbor robots
         neighors = getObjectByType(self.mObjectType)
         for agent in neighors:
             self.mPopulationAll[agent.mId] = agent
         
-        # 更新子群中机器人的坐标
+        # Update positions of robots in this robot's subgroup
         for subgroup_agent_id in self.mPopulation.keys():
             self.mPopulation[subgroup_agent_id] = self.mPopulationAll[subgroup_agent_id].pos
-
+        
+        # Update self fitness based on current position
         self.mFitness = self.getPosFit(self.pos)
-
 
         

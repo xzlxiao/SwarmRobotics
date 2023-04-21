@@ -21,7 +21,13 @@ class ComStaticFish(ComFish):
         self.mSpeed = 0
 
     def update(self):
+        """
+        This function updates the simulation by calling the super class's update function.
+        """        
         super().update()
 
     def move(self):
+        """
+        This function moves the robot by calling the super class's move function.
+        """        
         super().move()

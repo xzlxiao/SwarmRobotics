@@ -25,80 +25,150 @@ k = 20 # 目标迭代时间
 # mutate_param = 0.1 # 突变率调整参数
 
 def getTransferMat(x):
+    """
+    This function takes in a list x and returns a transfer matrix.
+
+    Args:
+        x (list): A list of floats.
+
+    Returns:
+        numpy.ndarray: A 2D numpy array of shape (n, n) where n is the length of x.
+    """
+    # Get length of input list
     n = len(x)
+
+    # Create an empty n x n matrix with float data type
     mat = np.zeros((n, n), dtype=float)
+
+    # Fill first column with values from input list
     for i in range(n):
         mat[i, 0] = x[i]
+
+    # Fill remaining columns using formulae based on input list
     for i in range(n-1):
         mat[0, i+1] = (1-x[0])/(n-1)
         mat[i+1, i+1] = 1-x[i+1]
+
+    # Return the final transfer matrix
     return mat
+
 
 def loss(x, S_0, k, S_t):
     """
-    x: 状态参数，用于构建概率的状态转移矩阵
-    S_0: 初始状态
-    k: 目标迭代时间
-    S_t: 目标状态
-    """
-    P = getTransferMat(x)
-    S_p = MarkovChain(S_0, P, k)
-    return mean_squared_error(S_p, S_t)
+    This function takes in state parameters x, starting state S_0, target iteration number k and target state S_t,
+    and returns the mean squared error between the actual and target states after Markov Chain iteration of k.
+
+    Args:
+        x (list): A list of floats representing state parameters used to build a probability transition matrix.
+        S_0 (list/numpy.ndarray): A list or array of floats representing the starting state.
+        k (int): An integer representing the target iteration number for updating the state according to the
+                  transition matrix.
+        S_t (list/numpy.ndarray): A list or array of floats representing the target state.
+
+    Returns:
+        float: The mean squared error between the resulting and target states after Markov Chain iteration of k.
+          'getTransferMat' and 'MarkovChain' functions should be imported before calling this function.
+    """    
+
+    P = getTransferMat(x) # Get probability transition matrix
+    S_p = MarkovChain(S_0, P, k) # Get final state after iteration
+    return mean_squared_error(S_p, S_t) # Return mean squared error between target and resulting states
 
 def mean_squared_error(y, t):
-    return 0.5 * np.sum((y-t)**2)
+    """
+    This function takes two arrays y and t and computes the mean squared error between them.
+
+    Args:
+        y (list/numpy.ndarray): A list or array of floats.
+        t (list/numpy.ndarray): A list or array of floats.
+
+    Returns:
+        float: The mean squared error between y and t.
+    """ 
+    return 0.5 * np.sum((y-t)**2) # Compute the mean squared error between y and t
 
 def numerical_gradient(x, S_0, k, S_t):
     """
-    x: 状态参数，用于构建概率的状态转移矩阵
-    S_0: 初始状态
-    k: 目标迭代时间
-    S_t: 目标状态
+    This function takes in state parameters x, starting state S_0, target iteration number k and target state S_t,
+    and returns its numerical gradient.
+
+    Args:
+        x (list): A list of floats representing state parameters used to build a probability transition matrix.
+        S_0 (list/numpy.ndarray): A list or array of floats representing the starting state.
+        k (int): An integer representing the target iteration number for updating the state according to the
+                  transition matrix.
+        S_t (list/numpy.ndarray): A list or array of floats representing the target state.
+
+    Returns:
+        numpy.ndarray: The numerical gradient of state parameters x.
     """
     h = 1e-4
     grad = np.zeros_like(x)
-    
 
     for idx in range(len(x)):
         tmp_val = x[idx]
-        # f(x+h)计算
-        x[idx] = tmp_val + h 
-        fxh1 = loss(x, S_0, k, S_t)
 
-        # f(x-h)计算
+        # f(x+h)计算 compute f(x+h)
+        x[idx] = tmp_val + h 
+        fxh1 = loss(x, S_0, k, S_t) 
+
+        # f(x-h)计算 compute f(x-h)
         x[idx] = tmp_val - h 
         fxh2 = loss(x, S_0, k, S_t)
 
-        grad[idx] = (fxh1 - fxh2) / (2 * h)
-        x[idx] = tmp_val # 还原值
+        grad[idx] = (fxh1 - fxh2) / (2 * h) # calculate the slope
+        x[idx] = tmp_val # restore value
 
     return grad
 
-def gradient_descent(init_x, S_0, k, S_t, lr=lr, step_num=100):
-    x = np.array(init_x).astype(float) 
+def gradient_descent(init_x, S_0, k, S_t, lr=0.01, step_num=100):
+    """
+    This function performs gradient descent optimization to find the optimal state parameters x.
+
+    Args:
+        init_x (list/numpy.ndarray): Initial values of the state parameters.
+        S_0 (list/numpy.ndarray): A list or array of floats representing the starting state.
+        k (int): An integer representing the target iteration number for updating the state according to the
+                  transition matrix.
+        S_t (list/numpy.ndarray): A list or array of floats representing the target state.
+        lr (float): Learning rate of gradient descent. Default value is set to 0.01.
+        step_num (int): Number of iterations. Default value is set to 100.
+
+    Returns:
+        numpy.ndarray: The optimized state parameters x.
+    """
+    x = np.array(init_x).astype(float) # convert initial parameters to float type
 
     for _ in range(step_num):
-        grad = numerical_gradient(list(x), S_0, k, S_t)
+        grad = numerical_gradient(list(x), S_0, k, S_t) # calculate gradient
         grad = np.array(grad).astype(float)
-        x -= lr * grad
+        x -= lr * grad # update parameters using gradient descent
         for i in range(x.size):
             if x[i] < 0 or x[i] >= 1:
-                x[i] = random.random()
+                x[i] = random.random() # randomize parameters that are out of bounds
     
     return x 
 
 def MarkovChain(S_0, P, k):
     """
-    S_0: 初始状态
-    P: 概率的状态转移矩阵
-    k: 迭代次数
-    return: S_k
-    """
-    S_k = copy.deepcopy(np.array(S_0).astype(float))
-    for _ in range(k):
-        S_k = np.matmul(S_k, P)
+    This function takes in a starting state S_0, a probability transition matrix P and a target iteration number k,
+    and returns the resulting state after Markov Chain iteration of k.
 
-    return S_k
+    Args:
+        S_0 (list/numpy.ndarray): A list or array of floats representing the starting state.
+        P (numpy.ndarray): A 2D numpy array representing the probability transition matrix.
+        k (int): An integer representing the target iteration number for updating the state according to the
+                  transition matrix.
+
+    Returns:
+        numpy.ndarray: The resulting state after Markov Chain iteration of k.
+    """
+    S_k = copy.deepcopy(np.array(S_0).astype(float)) # convert starting state to float type
+    for _ in range(k):
+        S_k = np.matmul(S_k, P) # perform Markov Chain iteration
+
+    return S_k 
+
 
 class ComRobotAF_niche_markov(ComRobotAF_niche):
     mutate_chance_list = {-1: 1.0}
@@ -110,36 +180,80 @@ class ComRobotAF_niche_markov(ComRobotAF_niche):
         self.count = 0
 
     def getFoodNum(self):
-        '''
-        当前已感知到的目标数量
-        '''
+        """Returns the current number of perceived targets.
+        
+        This method calculates the current number of perceived targets
+        by subtracting 1 from the length of the `mutate_chance_list` attribute
+        in the `ComRobotAF_niche_markov` object.
+
+        Returns:
+            int: The current number of perceived targets.
+        """        
+
         return len(ComRobotAF_niche_markov.mutate_chance_list)-1
 
+
     def saveGroupNum(self, dir, group_num_list: list):
+        """Saves the current count and a list of group numbers to a file.
+        
+        This method takes in a directory path and a list of group numbers
+        and appends them to a file. The first item written is the self.count
+        attribute followed by each item in the group_num_list separated by a comma.
+
+        Args:
+            dir (str): The directory path of the file to write to.
+            group_num_list (list): A list of integers representing group numbers.
+        """
+        # Open the file in append mode
         with open(dir, 'a+') as file:
+            # Write the current count to the file
             file.write("{}".format(self.count))
+            
+            # Loop through the list of group numbers and write them to the file separated by commas
             for group_num in group_num_list:
                 file.write(', ')
                 file.write(str(group_num))
+            
+            # Write a newline character to the file to separate entries
             file.write('\n')
+
     
     @staticmethod
     def enableSaveGroupNum(dir):
+        """Enables saving of group numbers.
+
+        This function sets the isSaveGroupNum attribute to True and sets
+        the GroupNumSaveDir attribute to the provided directory path.
+
+        Args:
+            dir (str): The directory path where the file will be saved.
+        """
+        # Set the isSaveGroupNum attribute to True, indicating that group numbers should be saved
         ComRobotAF_niche_markov.isSaveGroupNum = True
+
+        # Set the GroupNumSaveDir attribute to the provided directory path, indicating where the file should be saved
         ComRobotAF_niche_markov.GroupNumSaveDir = dir 
 
+
     def update(self):
+        """Updates the robot's behavior and state.
+
+        This function is called every iteration of the simulation to 
+        update the robot's behavior and state based on its surroundings.
+        """
         self.sense()
         self.processInfo()
-        # print(self.getSpecies(), self.mColor)
+
+        # If this robot has ID 0, check if group numbers should be saved
         if self.mId == 0:
             if ComRobotAF_niche_markov.isSaveGroupNum:
+                # Get group numbers for all population groups and save to file
                 group_num_list = []
                 for i in range(-1, 10):
                     group_num_list.append(len(ComRobotAF_niche.PopulationGroup[i]))
                 self.saveGroupNum(ComRobotAF_niche_markov.GroupNumSaveDir, group_num_list)
-            
-            # print(ComRobotAF_niche_markov.mutate_chance_list)
+
+            # Print population numbers for each subspecies
             main_pop = len(ComRobotAF_niche.PopulationGroup[-1])
             sub_pop0 = len(ComRobotAF_niche.PopulationGroup[0])
             sub_pop1 = len(ComRobotAF_niche.PopulationGroup[1])
@@ -166,10 +280,12 @@ class ComRobotAF_niche_markov(ComRobotAF_niche):
             ---------------------------------
             """.format(main_pop, sub_pop0, sub_pop1, sub_pop2, sub_pop3, sub_pop4, sub_pop5, sub_pop6, sub_pop7, sub_pop8, sub_pop9))
 
+        # Check if update count is greater than 5
         if self.getUpdateCount() > 5:
             for food in self.mFoodAll.values():
                 if food.isVisible:
                     if not ComRobotAF_niche.SpecialPool[food.mId]:
+                        # If there is nearby food that has not been claimed by a subspecies robot yet, claim it
                         if self.distance(food.pos, self.pos) < C_TH:
                             print("set species {}".format(food.mId))
                             ComRobotAF_niche.SpecialPool[food.mId] = True
@@ -181,28 +297,25 @@ class ComRobotAF_niche_markov(ComRobotAF_niche):
                                     self.mPopulationAll[agent_id].setSpecies(food.mId)
                             self.updateNewMutationChance()
                             break
-        
+
+        # Check if robot is currently unassigned to a subspecies
         if self._species == -1 and self.getUpdateCount() > 5:
             for food in self.mFoodAll.values():
                 if food.isVisible:
                     if ComRobotAF_niche.SpecialPool[food.mId]:
-                        # 突变为新物种的概率
+                        # If there is nearby food claimed by a subspecies robot, mutate to that subspecies
                         new_species_id = self.mutateToSubspecies()
                         if new_species_id != -1:
                             self.setSpecies(new_species_id)
         elif self._species!=-1:
-            
-            # if len(self.mFood) > 0:
-            #     print(self.distance(self.pos, self.mFood[0]))
-            #     print(self.getPosFit(self.pos))
-                
+
+            # Check if robot should return to the main swarm
             if self.isReturnToMainSwarm():
                 print("return main swarm: {}.{} -> main".format(self._species, self.mId))
                 self.randomDistancedMove()
-                # with open("/media/storage1/Code/data/AFSA/20220602003/log1.txt", 'a') as file:
-                #     file.write("return main swarm: {}.{} -> main\n".format(self._species, self.mId))
                 self.setSpecies(-1)
 
+        # If the robot has no subspecies assignment, move randomly
         if self._species == -1:
             self.randomMove()
         else:
@@ -210,30 +323,30 @@ class ComRobotAF_niche_markov(ComRobotAF_niche):
         self.move()
         self.count += 1
 
+
     def isReturnToMainSwarm(self):
         """
-        是否突变为主群物种
-        """
+        Checks whether the agent will mutate into the main species based on a certain probability.
+        If true, returns True, otherwise False.
+
+        Returns:
+            bool: True if the agent should mutate into the main swarm, False otherwise
+        """        
         
         if random.random() < self.getMainspeciesMutationChance(self._species):
             return True
-        # aggregation_degree = self.nicheAggregationDegree()
-        # if aggregation_degree > NICHE_aggregation_degree_threshold:
-        #     # print(aggregation_degree)
-        #     niche_size = len(self.mPopulation)
-        #     current_time = self.getTime()
-        #     rho_i = niche_size * AGG_lambda * (1.0/(1.0+math.e**(current_time*aggregation_degree/niche_size)) - 0.5)
-            
-        #     if rho_i > 1:
-                
-        #         dist = self.distance(self.pos, self.mFood[0])
-        #         for agent_pos in self.mPopulation.values():
-        #             if self.distance(self.mFood[0], agent_pos) > dist:
-        #                 return False 
-        #         return True 
         return False
 
-    def mutateToSubspecies(self)->int:
+
+    def mutateToSubspecies(self) -> int:
+        """
+        Returns a random subspecies ID number based on set probabilities.
+        If the random number does not fall within any probability range,
+        returns -1 by default.
+
+        Returns:
+            int: _description_
+        """        
         rand_num = random.random()
         mutate_chance = self.getSubspeciesMutationChance()
         last_mutate_chance = 0
@@ -245,54 +358,94 @@ class ComRobotAF_niche_markov(ComRobotAF_niche):
                     last_mutate_chance += mutate_chance
         return -1
 
-    def getSubspeciesMutationChance(self)->Num:
-        '''
-        获得突变为某个子群的概率
-        '''
+
+    def getSubspeciesMutationChance(self) -> Num:
+        """
+        Calculates the mutation chance for a given subspecies based on the number of food sources available.
+        If there are no available food sources, returns 0 by default.
+
+        Returns:
+            Num: Returns a float value representing the mutation chance for a given subspecies.
+            If no food is available, returns 0. 
+        """        
+
         if self.getFoodNum() > 0:
             return settings.AF_MUTATE_PARAM * settings.CS_INTERVAL * (1-ComRobotAF_niche_markov.mutate_chance_list[-1])/self.getFoodNum()
         else:
             return 0
 
+
     def getMainspeciesMutationChance(self, species_id)->Num:
-        '''
-        获得突变为主群的概率
-        '''
+        """
+        Calculates the mutation chance for a given species to become the main species. 
+        The mutation chance is calculated according to this formula:
+        Args:
+            species_id (_type_): An integer representing the ID of the species.
+
+        Returns:
+            Num: Returns a float value representing the mutation chance for the given species to become the main species.
+        """
+      
         # print( ComRobotAF_niche_markov.mutate_chance_list)
         return settings.AF_MUTATE_PARAM * settings.CS_INTERVAL * ComRobotAF_niche_markov.mutate_chance_list[species_id]
 
     def updateNewMutationChance(self):
-        '''
-        更新突变率
-        '''
+        """
+        Updates the mutation chance for each subspecies based on the current state and food availability.
+        
+        """        
+
+        # Check if mutation chance is fixed before updating.
         if not ComRobotAF_niche_markov.isFixedMutate_chance:
+            
+            # Calculate main_mu using the sigmoid function and the number of available foods.
             food_num = self.getFoodNum()
             main_mu = sigmoid(-food_num, -2, 0.2)
-            sub_mu = (1-main_mu)/food_num
+            
+            # Calculate sub_mu for each subspecies.
+            sub_mu = (1-main_mu) / food_num
+            
+            # Get the current state S_0 using getState0() and generate S_t.
             S_0 = self.getState0()
             S_t  = [main_mu]
             for i in range(food_num):
                 S_t.append(sub_mu)
+            
+            # Use gradient descent to calculate the optimal x2 values that minimize the difference between S_t and S_0.
             x1 = np.random.random(food_num+1)
             x2 = gradient_descent(x1, S_0, k, S_t, lr=lr, step_num=step_num)
+            
+            # Update the mutate_chance_list dictionary with the new mutation probabilities.
             for i, _key in enumerate(ComRobotAF_niche_markov.mutate_chance_list.keys()):
                 ComRobotAF_niche_markov.mutate_chance_list[_key] = x2[i]
 
     def getState0(self):
-        '''
-        获得当前状态（初始状态）
-        '''
+        """
+        Calculates the current state (initial state) based on the number of robots for each subspecies.
+
+        Returns:
+            A list of floats representing the current state for each subspecies.
+        """        
+
+        # Initialize empty list to store results.
         ret = []
+
+        # Get the total number of robots across all subspecies.
         robots_num = self.getAllRobotsNum()
+
+        # Calculate the ratio of robots for each subspecies to the total number of robots.
         for species_id in ComRobotAF_niche_markov.mutate_chance_list.keys():
             robots_num_by_species = self.getRobotsNumBySpecies(species_id)
             ret.append(robots_num_by_species / robots_num)
+
+        # Return the list of ratios as the current state.
         return ret
 
     def randomDistancedMove(self):
-        '''
-        随机移动，越远的越
-        '''
+        """ 
+        Randomly selects a new target for the robot to move towards, with a bias towards farther targets.
+
+        """        
         # self.chooseRandomTarget()
         self.chooseRandomDistancedTarget()
         # self.isDistancedTravel = True

@@ -130,41 +130,6 @@ class ComRobotCon(ComRobot):
         向目标移动一步
         :return:
         """
-        # if not self.isPathPlanning:
-        #     super().move()
-        # else:
-        #     self.mIterations += 1
-        #     pos_last = self.mPos.copy()
-        #     robot_pos = self.pos
-        #     target_pos = self.target
-
-        #     if self.mRobotType == '2D':
-        #         # 机器人旋转
-        #         direction_next = self.mRotationSpeed * mySettings.TIME_INTERVAL + self.mDirection
-        #         self.setDirection(direction_next)
-        #         pos_next = np.array([self.mLineSpeed * mySettings.TIME_INTERVAL, 0])
-        #         rot_mat = self.getRotationMat(self.mDirection)
-        #         pos_next = np.matmul(pos_next, rot_mat)
-        #         pos_next += pos_last[0:2]
-        #         self.pos = pos_next
-        #     elif self.mRobotType == '3D':
-        #         direction_next = self.mRotationSpeed * mySettings.TIME_INTERVAL + self.mDirection
-        #         self.setDirection(direction_next)
-        #         pos_next = np.array((0.,0.,0.))
-        #         pos_diff_xy = np.array([self.mLineSpeed * mySettings.TIME_INTERVAL, 0])
-        #         pos_diff_z = self.mZLineSpeed * mySettings.TIME_INTERVAL
-        #         rot_mat = self.getRotationMat(self.mDirection)
-        #         pos_diff_xy = np.matmul(pos_diff_xy, rot_mat)
-        #         pos_next[0:2] = pos_diff_xy
-        #         pos_next[2] = pos_diff_z
-        #         pos_next += pos_last
-        #         self.pos = pos_next
-
-        #     self.setShape(shape=self.mShape)
-        #     if not (self.mPos == pos_last).all():
-        #         self.mTrail[0].append(self.mPos[0])
-        #         self.mTrail[1].append(self.mPos[1])
-        #         self.mTrail[2].append(self.mPos[2])
         self.mIterations += 1
         pos_last = self.mPos.copy()
         robot_pos = self.pos

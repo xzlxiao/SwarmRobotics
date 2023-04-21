@@ -1,12 +1,7 @@
 #  群体机器人（SwarmRobotics）
 
 该项目是一个使用Python和Matplotlib实现的Swarm Robotics仿真平台。它允许用户创建自定义的Swarm Robotics算法，并在仿真环境中进行测试和评估。
-英文版是机器翻译，中文版readme更为可读，建议主要参考中文版。
-自动翻译脚本为：
 
-```bash
-python Tools/translate_readme.py
-```
 
 [English](./README.md)|[中文](./readme_chinese.md)
 

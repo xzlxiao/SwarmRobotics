@@ -29,37 +29,60 @@ class ComRobotSenseDepict(ComRobotCon):
         self.mDetectedColor = (0, 0, 0.5, 1)
 
     def setUndetectedObjType(self, obj_type):
+        """Method to set the type of undetected object.
+
+        Args:
+            obj_type (type): The type of object.
+        """
         self.mUndetected_obj_type = obj_type
+        
+        # Create an empty dictionary for processed info if it doesn't exist.
         if obj_type not in self.mProcessedInfo:
             self.mProcessedInfo[obj_type] = {}
 
     def setDetectedObjType(self, obj_type):
+        """Method to set the type of detected object.
+
+        Args:
+            obj_type (type): The type of object.
+        """
         self.mDetected_obj_type = obj_type
+        
+        # Create an empty dictionary for processed info if it doesn't exist.
         if obj_type not in self.mProcessedInfo:
             self.mProcessedInfo[obj_type] = {}
 
     def sense(self):
+        """Method to sense objects in the robot's environment.
+        """
+        # Call the parent class sense method.
         super().sense()
+        
+        # Get objects sensed by the robot.
         obj_sensed = self.getObjectBySight()
+        
+        # Iterate over sensed objects.
         for obj in obj_sensed:
+            # Check if the object is of the undetected type.
             if obj.mObjectType == self.mUndetected_obj_type:
+                # Change the object's type to the detected type.
                 obj.mObjectType = self.mDetected_obj_type
                 obj.setColor(self.mDetectedColor)
                 obj.setRadius(obj.mRadius+5)
 
-    
     def update(self):
-        self.sense()
-        self.processInfo()
-
+        """Method to update the robot's state.
+        """
+        self.sense() # Sense the environment.
+        self.processInfo() # Process environmental data.
+        
+        # If path planning is enabled, plan and follow a path to the target.
         if self.isPathPlanning:
             if self.getPlanningControl().mTarget is None:
                 self.setPlanningTarget(self.mPos)
             self.pathPlanning()
+        self.pathFollowing() # Follow the planned path.
+        self.move() # Move the robot to its destination.
 
-
-        self.pathFollowing()
-
-        self.move()
 
     

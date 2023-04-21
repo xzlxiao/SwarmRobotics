@@ -46,9 +46,27 @@ __colors = [
     # 'white',
 ]
 def getColor(num:int):
+    """
+    Returns the color associated with a given number.
+
+    Args:
+        num (int): The input number to retrieve the color for.
+
+    Returns:
+        str: The color corresponding to the input number.
+    """
     return __colors[num%len(__colors)]
 
 def readPointFromFile(dir: str):
+    """
+    Reads and parses a file containing coordinate points in the format 'x,y', and returns them as a list of tuples.
+
+    Args:
+        dir (str): The directory location of the file to be read.
+
+    Returns:
+        list: A list of tuples, with each tuple representing a (x, y) coordinate point.
+    """
     ret = []
     with open(dir, 'r') as file:
         lines = file.readlines()
@@ -57,12 +75,33 @@ def readPointFromFile(dir: str):
             ret.append((float(line[0]), float(line[1])))
     return ret
 
+
+def distance(pt1, pt2):
+    """
+    Calculates the Euclidean distance between two points in n-dimensional space.
+
+    Args:
+        pt1 (list or np.array): A list or array of float or int values representing the coordinates for the first point.
+        pt2 (list or np.array): A list or array of float or int values representing the coordinates for the second point.
+
+    Returns:
+        float: The Euclidean distance between the two points.
+    """
+    pt1 = np.array(pt1, dtype=np.float32)
+    pt2 = np.array(pt2, dtype=np.float32)
+    return np.linalg.norm(pt2 - pt1, ord=2)
+
+
 def calcLost(base_point_list: list, robot_point_list: list):
     """
-    计算每个点的偏差
-    :param base_point_list: 作为基准的点集
-    :param robot_point_list: 需要评估的点集
-    :return: 偏差列表
+    Calculates the deviation of each point in robot_point_list from the closest point in base_point_list.
+
+    Args:
+        base_point_list (list): A list of points to be used as the baseline.
+        robot_point_list (list): A list of points to be evaluated.
+
+    Returns:
+        list: A list of distances representing the minimum distance between each robot point and the baseline.
     """
     ret = []
     for pt_robot in robot_point_list:
@@ -78,6 +117,15 @@ def calcLost(base_point_list: list, robot_point_list: list):
 
 
 def svg_parse(path):
+    """
+    This function parses an SVG path string and converts it into a sequence of Path vertices.
+    
+    Args:
+        path : str : A string containing SVG path commands
+        
+    Returns:
+        numpy.ndarray : An array of vertices and their respective codes
+    """
     commands = {'M': (Path.MOVETO,),
                 'L': (Path.LINETO,),
                 'Q': (Path.CURVE3,)*2,
@@ -103,47 +151,42 @@ def svg_parse(path):
 
 
 def loadSVG(path_list:list, translate_list:list):
-    '''This function loads an SVG file and translates each path by the given coordinates.
-    
+    """used for batch loading and processing of SVG files
+
     Args:
-        path_list (list): A list of filepath strings for each SVG to be loaded
-        translate_list (list): A list of tuples representing [x,y] coordinates to translate each SVG
-    
+        path_list (list): A list of paths to SVG files.
+        translate_list (list): A list of tuples representing the x,y values to translate each SVG file.
+
     Returns:
-        tuple: A tuple containing two ndarrays. The first array contains codes, and the second 
-               array contains vertices.
-    '''
-    # Initialize code and vertice variables as None
+        tuple: Returns a tuple containing two numpy arrays. The first array contains codes and the second array contains vertices.
+    """   
     codes = None
     vertices = None 
-    
-    # Iterate through the path_list with index and the corresponding translate values
     for index, item in enumerate(path_list):
-        # Parse the SVG data into a code and vertice array
         code, vertice = svg_parse(item)
-        
-        # Translate the vertice array using the current index's translate values
         vertice[:, 0] += translate_list[index][0]
         vertice[:, 1] += translate_list[index][1]
-        
-        # Concatenate the current code and vertice arrays into the final arrays
         if codes is None:
             codes = code
             vertices = vertice
         else:
             codes = np.concatenate([codes, code])
             vertices = np.concatenate([vertices, vertice])
-    
-    # Center the vertices around the origin by subtracting half of the maximum coordinates
     vertices[:, 0] -= np.max(vertices[:, 0])/2
     vertices[:, 1] -= np.max(vertices[:, 1])/2
-    
-    # Return the final arrays as a tuple
     return codes, vertices
 
 
-
 def getAllKeysInDict(dict_list: list):
+    """
+    Returns a list containing all unique keys in a list of dictionaries.
+
+    Args:
+        dict_list (list): A list of dictionaries. Each dictionary should contain key-value pairs representing items and their quantities.
+
+    Returns:
+        list: A list containing all unique keys found in the input list of dictionaries.
+    """   
     keys_list = []
     for dict_item in dict_list:
         dict_item: dict
@@ -155,18 +198,14 @@ def getAllKeysInDict(dict_list: list):
 
 def distance(pt1, pt2):
     """
-    计算两点间的距离
-    :param pt1: list or np.array
-    :param pt2: list or np.array
-    :return:
-    """
-    """
-    距离计算公式
-    """
-    """!
-    \f[
-        d = \sqrt{(x_2-x_1)^2+(y_2-y_1)^2}
-    \f]
+    Calculate the distance between two points
+
+    Args:
+        pt1 (list or np.array): A list or array containing the coordinates of the first point (x,y,z).
+        pt2 (list or np.array): A list or array containing the coordinates of the second point (x,y,z).
+
+    Returns:
+        float: The euclidean distance between the two points.
     """
     if np.array(pt1, dtype=np.float32).ndim == 1:
         pt1 = np.array(pt1[0:3], dtype=np.float32)
@@ -183,38 +222,44 @@ def distance(pt1, pt2):
 
 def sigmoid(x, z=0, k=1):
     """
-    sigmoid 函数
-    :param x:
-    :param z: 中值
-    :param k: 陡峭度
-    :return:
+    sigmoid 函数 (Sigmoid function)
+
+    Args:
+        x (float): The input value to the sigmoid function.
+        z (float): The midpoint of the sigmoid function. Default is 0.
+        k (float): The steepness of the sigmoid function. Default is 1.
+
+    Returns:
+        float: The output of the sigmoid function given the input value x.
     """
     return 1 / (1 + np.exp((-k) * (x - z)))
 
 def curved_line(x0, y0, x1, y1, miner_dist, x_center=0, y_center=0, pointn=20, mode=0, eps=0.2):
-    """获得点pt0 和pt1之间的弧线
-        控制点位置由黄吉实现
+    """
+    Returns a list of points representing an arc between two given points.
+
     Args:
-        x0 (int): pt0
-        y0 (int): pt0
-        x1 (int): pt1
-        y1 (int): pt1
-        miner_dist ([type]): 两点最小距离
-        x_center (int, optional): 中心点x坐标
-        y_center (int, optional): 中心点y坐标
-        pointn (int, optional): 点的数量. Defaults to 20.
-        mode (int, optional): 弧线模式，默认为0，即向中心弯曲，1：随机方向弯曲
+        x0 (int): The x-coordinate of the first point.
+        y0 (int): The y-coordinate of the first point.
+        x1 (int): The x-coordinate of the second point.
+        y1 (int): The y-coordinate of the second point.
+        miner_dist ([type]): The minimum distance between the two points.
+        x_center (int, optional): The x-coordinate of the center point around which to draw the arc. Defaults to 0.
+        y_center (int, optional): The y-coordinate of the center point around which to draw the arc. Defaults to 0.
+        pointn (int, optional): The number of points to return. Defaults to 20.
+        mode (int, optional): The type of arc to draw. 0 curves towards the center, 1 curves in a random direction. Defaults to 0.
+        eps (float, optional): The magnitude of the curve. Higher values result in more pronounced curvature. Defaults to 0.2.
+
     Returns:
-        [list]: 弧线
+        segments (list): A list of points along the arc.
     """    
-    # x2 = (x0+x1)/2.0 + 0.1 ** (eps+abs(x0-x1)) * (-1) ** (random.randint(1,4))
-    # y2 = (y0+y1)/2.0 + 0.1 ** (eps+abs(y0-y1)) * (-1) ** (random.randint(1,4))
     x2 = 0
     y2 = 0
+
+    # Determine the position of the control point based on the specified mode
     if mode == 0:
-        pt2_dist = distance((x1, y1), (x0, y0))     # 两点之间的距离
+        pt2_dist = distance((x1, y1), (x0, y0))     # Calculate the Euclidean distance between the two points
         if pt2_dist < 1.5 * miner_dist:
-            # 如果是最近的两个点之一
             x2 = 0.5 * (x1 + x0)
             y2 = 0.5 * (y1 + y0)
         elif pt2_dist < 2.5 * miner_dist:
@@ -230,55 +275,99 @@ def curved_line(x0, y0, x1, y1, miner_dist, x_center=0, y_center=0, pointn=20, m
         x2 = (x0+x1)/2.0 + 0.1 ** (eps+abs(x0-x1)) * (-1) ** (random.randint(1,4))
         y2 = (y0+y1)/2.0 + 0.1 ** (eps+abs(y0-y1)) * (-1) ** (random.randint(1,4))
 
+    # Initialize a Bezier curve using the control point and the given endpoints
     nodes = np.asfortranarray([
         [x0, x2, x1],
         [y0, y2, y1]
     ])
     curve = bezier.Curve(nodes,
                          degree=2)
+
+    # Generate the specified number of points along the curve using the given values for t
     s_vals = np.linspace(0.0, 1.0, pointn)
     data=curve.evaluate_multi(s_vals)
     x=data[0]
     y=data[1]
+
+    # Convert the list of x- and y-coordinates to a list of segments
     segments =[]
     for index in range(0,len(x)):
         segments.append([x[index],y[index]])
     segments = [segments]
+
     return  segments
 
-def curved_graph(_graph, ax, pos = None, linewidth=1, color='k', mode=0, eps=0.2, vmax=.0, vmin=1.0, cmap='winter'):
+
+def curved_graph(_graph, ax, pos=None, linewidth=1, color='k', mode=0, eps=0.2, vmax=.0, vmin=1.0, cmap='winter'):
     """
-    为networkx位置弧线型的边
+    This function adds curved edges to a NetworkX graph visualization using Matplotlib.
 
     Args:
-        _graph ([type]): networkx的图对象
-        ax ([type]): matplotlib通过gca()获得的轴的变量
-        pos ([type], optional): 节点的坐标位置. Defaults to None.
-        linewidth (int, optional): 线宽. Defaults to 1.
-        color (str or list, optional): 线的颜色. Defaults to 'k'.
-        mode (int, optional): 弧线模式，默认为0，即向中心弯曲，1：随机方向弯曲
-    """    
+        _graph: A NetworkX graph object.
+        ax: A variable representing the axis obtained through `gca()` of Matplotlib.
+        pos (optional): Optional parameter for node coordinates. Default is None.
+        linewidth (optional): Optional parameter for line width. Default is 1.
+        color (optional): Optional parameter for line color. Default is 'k' (black).
+        mode (optional): Optional parameter for the curvature mode. Default is 0 (center-bend) and 1 for random direction bend.
+        eps (optional): Optional parameter for line curve intensity. Default is 0.2.
+        vmax (optional): Optional parameter for maximum value in the normalization feature of line color. Default is .0.
+        vmin (optional): Optional parameter for minimum value in the normalization feature of line color. Default is 1.0.
+        cmap (optional): Optional parameter for choosing a specific colour map if `color` is a list. Default is `'winter'`.
+
+    If node coordinates are not provided in `pos`, it generates a spring layout of `_graph`.
+    It then calculates the minimum distance between two nodes in the layout using the `distance()` function.
+    For each edge in the graph, it generates a curved line between the positions of its source and target nodes
+    with the specified mode, eps and miner_dist.
+
+    The line's color depends on whether `color` is a string or a list.
+    If it is a string, it sets the line color to the value of `color`.
+    If it is a list, it uses Matplotlib's color map feature to generate a color map from the given color list.
+    The color map is then normalized using the `vmin` and `vmax` parameters.
+
+    Finally, the LineCollection of each segment is added to the axis using `add_collection()`
+    and then returned.
+    """
+    
     if pos == None:
+        # Generate spring layout if node positions are not provided
         pos = nx.spring_layout(_graph)
     
+    # Calculate minimum distance between two nodes in the layout
     miner_dist = distance(pos[0], pos[1])
 
     count = 0
     for u,v in _graph.edges():
+        # Get position coordinates of source and target nodes
         x0, y0 = pos[u]
         x1, y1 = pos[v]
+        # Generate curved line segments between source and target nodes
         segs = curved_line(x0,y0,x1,y1,miner_dist, mode=mode, eps=eps)
+        # Set line color based on whether it's a string or list
         if type(color) == str:
             lc = LineCollection(segs, color=color, linewidth=linewidth)
         elif type(color) == list:
+            # Generate colormap from given color list and normalize it
             color_map = plt.get_cmap(cmap)
             norm = plt.Normalize(vmin=vmin, vmax=vmax)
+            # Set the LineCollection color to a value retrieved from the normalized colormap
             lc = LineCollection(segs, color=color_map(norm(color[count])), linewidth=linewidth)
+        # Add LineCollection segment to Matplotlib axis object
         ax.add_collection(lc)
         count += 1
 
 
+
 def mkdir(dir):
+    """
+    Create a directory with the given name if it does not already exist.
+
+    Args:
+        dir (str): The name of the directory to create.
+
+    Returns:
+        bool: True if a new directory was created, False otherwise.
+
+    """
     if os.path.exists(dir):
         return False
     else:
@@ -286,6 +375,16 @@ def mkdir(dir):
         return True
 
 def two_dim_to_three_dim(pos):
+    """
+    Converts a 2D position to a 3D position by appending a 0 to the z-coordinate.
+
+    Args:
+        pos (numpy.ndarray): A 2D position represented as a numpy array with shape (2,).
+
+    Returns:
+        numpy.ndarray: A 3D position represented as a numpy array with shape (3,).
+
+    """
     if len(pos) < 3:
         pos_tmp = np.array([0.0, 0.0, 0.0])
         pos_tmp[0:2] = pos[0:2]
@@ -293,7 +392,16 @@ def two_dim_to_three_dim(pos):
     return pos 
 
 def unitVector(vector:np.ndarray):
-    # 求模长
+    """
+    Takes a numpy array representing a vector and returns a normalized (unit) version of the vector.
+
+    Args:
+        vector (numpy.ndarray): A numpy array representing a vector.
+
+    Returns:
+        numpy.ndarray: A numpy array representing the normalized version of the input vector.
+
+    """
     vector_norm = np.linalg.norm(vector)
     if vector_norm:
         return vector/vector_norm
@@ -301,6 +409,21 @@ def unitVector(vector:np.ndarray):
         return vector
 
 def getNormalPoint(x_range=(-1, 1), y_range=(-1, 1), z_range=(-1, 1), dim=3, loc=(.0, .0, .0), scale=0.5):
+    """
+    Generates a random point with normally distributed coordinates in the specified ranges.
+
+    Args:
+        x_range (tuple): A tuple specifying the minimum and maximum values for the x-coordinate.
+        y_range (tuple): A tuple specifying the minimum and maximum values for the y-coordinate.
+        z_range (tuple): A tuple specifying the minimum and maximum values for the z-coordinate.
+        dim (int): An integer indicating the number of dimensions of the generated point.
+        loc (tuple): A tuple specifying the mean value for each coordinate.
+        scale (float): A float specifying the standard deviation for each coordinate.
+
+    Returns:
+        tuple: A tuple representing a randomly generated point with normally distributed coordinates within the specified ranges,
+        or None if no such point can be generated within 100 attempts.
+    """
     x = None
     y = None 
     z = None
@@ -358,10 +481,16 @@ def getNormalPoint(x_range=(-1, 1), y_range=(-1, 1), z_range=(-1, 1), dim=3, loc
 
 def getCircleCoordinate(degree, r=5, center=(0, 0)):
     '''
-    计算圆上的坐标
-    degree: 以x轴正向为0度顺时针旋转
-    r: 圆的半径
-    center: 圆中心点的坐标
+    Calculates the coordinates of a point on a circle.
+
+    Args:
+        degree (float): The angle in degrees of the desired point on the circle. 
+            Measured clockwise from the positive x-axis.
+        r (float): The radius of the circle.
+        center (tuple): The (x, y) coordinates of the center of the circle.
+
+    Returns:
+        tuple: The (x, y) coordinates of the point on the circle at the given angle.
     '''
     return center[0] + r * math.cos(degree * math.pi/180), center[1] + r * math.sin(degree * math.pi/180)
 
@@ -418,7 +547,6 @@ def getMeshGridMat(x_start, x_end, y_start, y_end, z_start=None, z_end=None, x_s
         
         return np.meshgrid(x,y,z) # Return a tuple of coordinate matrices (x, y, z)
 
-    
 # Define a function to extract coordinates of thinned line points from an image
 def getLinePointFromImage(image_dir:str, resize=None):
     """
@@ -471,7 +599,6 @@ def getCircleCoordinate(degree, r=5, center=(0, 0)):
     return x, y
 
 
-import time
 
 def how_much_time(func):
     """

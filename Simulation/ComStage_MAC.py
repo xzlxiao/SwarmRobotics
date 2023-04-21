@@ -59,17 +59,33 @@ class ComStageMAC(ComStage):
         self.scale = self.mEnvSize[0]
 
     def initMap(self):
+        """Method to initialize the map of the robot's environment.
+        """
+        # Create an empty map as a list of lists.
         self.map = [[] for i in range(self.linenum-2)]
+        
+        # Iterate over the rows and columns of the map.
         for i in range(1, self.linenum - 2):
             for j in range(1, self.linenum - 2):
+                # Calculate the x and y coordinates of the cell.
                 x = i/self.linenum * self.scale - self.scale/2
                 y = j/self.linenum * self.scale - self.scale/2
-                self.map[i-1].append({'status': 'idle',  # idle空闲，waiting等待机器人到位，busy占用, useless该位置无法接入
-                                      'pos': (x, y),
-                                      'angle': None,
-                                      'slots': set()})
+                
+                # Add a dictionary representing the cell to the map.
+                self.map[i-1].append({'status': 'idle', # Can be idle (空闲), waiting (等待机器人到位), busy (占用), useless (该位置无法接入).
+                                    'pos': (x, y), # The position of the cell.
+                                    'angle': None, # The angle at which the robot should approach the cell.
+                                    'slots': set()}) # A set of indices of slots in the cell.
+
 
     def updateMap(self, robot: ComRobotAF_MAC):
+        """Method to update the robot's map with the current status of a given robot.
+
+        Args:
+            robot (ComRobotAF_MAC): A robot object representing the robot whose status is being updated.
+        """
+
+        # If the robot is leaving, mark its location as idle and update the relevant information in the map.
         if robot.status == 'leaving':
             i = round((robot.mPos[0] + self.scale/2)/self.scale * self.linenum - 1)
             j = round((robot.mPos[1] + self.scale/2)/self.scale * self.linenum - 1)
@@ -79,17 +95,21 @@ class ComStageMAC(ComStage):
             self.map[i][j]['slots'] = robot.slots
             self.leaveHistory.append((i, j))
             return
+        
+        # If the robot is entering, determine whether it needs to pick up from the leave history or find a new location to enter.
         if robot.status == 'entering':
             if robot.mTarget[2] == 400:
+                # If there are locations in the leave history, pick the most recent one and set the robot's target accordingly.
                 if len(self.leaveHistory) > 0:
                     i, j = self.leaveHistory.pop()
                     robot.mTarget = np.array([self.map[i][j]['pos'][0],
-                                              self.map[i][j]['pos'][1],
-                                              500], dtype=np.float32)
+                                            self.map[i][j]['pos'][1],
+                                            500], dtype=np.float32)
                     robot.p_acsInfo[robot.mId] = {'type': 'slot-rpl', 'slots': self.map[i][j]['slots']}
                     self.map[i][j]['status'] = 'waiting'
                     return
-                else:  # 找一个位置让机器人过去，作为一个新机器人接入
+                else:
+                    # If there are no locations in the leave history, find a new location for the robot to enter.
                     for i in range(5):
                         mi = 4 - i
                         ma = 5 + i
@@ -97,161 +117,190 @@ class ComStageMAC(ComStage):
                             if self.map[mi][p]['status'] == 'idle':
                                 self.map[mi][p]['status'] = 'waiting'
                                 robot.mTarget = np.array([self.map[mi][p]['pos'][0],
-                                                          self.map[mi][p]['pos'][1],
-                                                          500], dtype=np.float32)
+                                                        self.map[mi][p]['pos'][1],
+                                                        500], dtype=np.float32)
                                 return
                         for p in range(mi, ma + 1):
                             if self.map[ma][p]['status'] == 'idle':
                                 self.map[ma][p]['status'] = 'waiting'
                                 robot.mTarget = np.array([self.map[ma][p]['pos'][0],
-                                                          self.map[ma][p]['pos'][1],
-                                                          500], dtype=np.float32)
+                                                        self.map[ma][p]['pos'][1],
+                                                        500], dtype=np.float32)
                                 return
                         for p in range(mi, ma + 1):
                             if self.map[p][mi]['status'] == 'idle':
                                 self.map[p][mi]['status'] = 'waiting'
                                 robot.mTarget = np.array([self.map[p][mi]['pos'][0],
-                                                          self.map[p][mi]['pos'][1],
-                                                          500], dtype=np.float32)
+                                                        self.map[p][mi]['pos'][1],
+                                                        500], dtype=np.float32)
                                 return
                         for p in range(mi, ma + 1):
                             if self.map[p][ma]['status'] == 'idle':
                                 self.map[p][ma]['status'] = 'waiting'
                                 robot.mTarget = np.array([self.map[p][ma]['pos'][0],
-                                                          self.map[p][ma]['pos'][1],
-                                                          500], dtype=np.float32)
+                                                        self.map[p][ma]['pos'][1],
+                                                        500], dtype=np.float32)
                                 return
             else:
                 return
 
-    def update(self):
-        # 图坐标系建立
-        if self.mAx:  # 画3d图的准备
-            self.mAx.cla()
-            self.mAx.grid(False)
-            self.mAx.set_xlim(-self.mEnvSize[0], self.mEnvSize[0])
-            self.mAx.set_ylim(-self.mEnvSize[1], self.mEnvSize[1])
-            self.mAx.set_zlim(-self.mEnvSize[2], self.mEnvSize[2])
-        if self.mGraphAx:  # 画连通图的准备
-            self.mGraphAx.cla()
 
-        # 梳理网络结构，确定有向连通图
-        self.mRobotList.clear_edges()
-        # kd_tree = KDtree(self.mRobotPosList)
+    def update(self):
+        """This method updates the state of robots and the network.
+        """
+
+        # Creating chart coordinate system
+        if self.mAx:  # Preparing to draw a 3D graph
+            self.mAx.cla()  # Clear old plot
+            self.mAx.grid(False)  # Disable grid lines
+            self.mAx.set_xlim(-self.mEnvSize[0], self.mEnvSize[0])  # Set limits on x axis
+            self.mAx.set_ylim(-self.mEnvSize[1], self.mEnvSize[1])  # Set limits on y axis
+            self.mAx.set_zlim(-self.mEnvSize[2], self.mEnvSize[2])  # Set limits on z axis
+        if self.mGraphAx:  # Preparing to draw a connected graph
+            self.mGraphAx.cla()  # Clear old plot
+
+        # Clarifying the network structure, determining the directed connected graph
+        self.mRobotList.clear_edges()  # Remove all edges between nodes in the graph
         for ind, pos in enumerate(self.mRobotPosList):
             robot = list(self.mRobotList.nodes)[ind]
-            # if robot.status != 'entering':  # 对于正在进入的机器人，等其到达指定位置上了再进行感知。
-            robot.refresh()
+            robot.refresh()  # Clear robot's temporary variables
             if robot.isCommunicating:
-                # 获得通信范围内的所有机器人,获得出邻居机器人
-                robot.sense()
+                robot.sense()  # Get robots within communication range
         for ind, pos in enumerate(self.mRobotPosList):
             robot = list(self.mRobotList.nodes)[ind]
             if robot.isCommunicating:
                 for rbt in robot.robots_inRs:
                     if robot in rbt.out_robots:
-                        robot.in_robots.append(rbt)  # 获得入邻居机器人
-        edges_color = []
+                        robot.in_robots.append(rbt)  # Get incoming neighbors
+            edges_color = []
         for ind, pos in enumerate(self.mRobotPosList):
             robot = list(self.mRobotList.nodes)[ind]
             if robot.isCommunicating:
-                # 连通图内各个机器人通信动作冲突性判断
-                robot.in_robots, rept_robot = self.judgeConflict(robot.in_robots)
+                robot.in_robots, rept_robot = self.judgeConflict(robot.in_robots)  # Judge conflicts between robots with overlapping communication range
                 for rpt_rbt in rept_robot:
                     rpt_rbt.out_robots.remove(robot)
-                    self.mRobotList.add_edge(rpt_rbt, robot)
+                    self.mRobotList.add_edge(rpt_rbt, robot)  # Add an edge between two given nodes
                     edges_color.append('r')
                 if len(rept_robot) > 0:
                     print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                    print('out:', [rbt.mId for rbt in rept_robot], ' in:', robot.mId)
-                    print('id:', robot.mId, 'in neighbors: ', [rbt.mId for rbt in robot.in_robots])
+                    print(f'out: {[rbt.mId for rbt in rept_robot]} in: {robot.mId}')
+                    print(f'id: {robot.mId} in neighbors: {[rbt.mId for rbt in robot.in_robots]}')
                     for r in rept_robot:
-                        print('id:', r.mId, 'out neighbors: ', [rbt.mId for rbt in r.out_robots])
+                        print(f'id: {r.mId} out neighbors: {[rbt.mId for rbt in r.out_robots]}')
                     print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
                 for rbt in robot.in_robots:
-                    self.mRobotList.add_edge(rbt, robot)
+                    self.mRobotList.add_edge(rbt, robot)  # Add an edge between two given nodes
                     edges_color.append('b')
 
-        # 执行正确通信动作
-        print('nowTime: ', ComStageMAC.nowTime, ' with id:', self.rbtID_Time[ComStageMAC.nowTime], 'can send msg.')
+        # Perform the correct communication action
+        print(f'nowTime: {ComStageMAC.nowTime} with id: {self.rbtID_Time[ComStageMAC.nowTime]} can send msg.')
         for vrobot in self.mRobotList.nodes:
             for rbt in vrobot.out_robots:
-                vrobot.communicateWith(rbt, ComStageMAC.nowTime)
+                vrobot.communicateWith(rbt, ComStageMAC.nowTime)  # Transmit information to robots within communication range
             if vrobot.isCommunicating and (ComStageMAC.nowTime in vrobot.slots):
-                vrobot.sendMsg.clear()  # 发送完成后清空
-                vrobot.hasSendLeaFlag = 2  # 对于要离开的机器人来说，直到这时才将离开洪泛包发出去，然后机器人update时就可以离开网络了
+                vrobot.sendMsg.clear()  # Clear message sent
+                vrobot.hasSendLeaFlag = 2  # Set the leaving flag for robots that are about to leave the network. These robots can only leave the network once this flag is set.
 
-        # 执行机器人自身的更新程序，融合数据
+        # Perform robot's self-update program, merge data
         for ind, vrobot in enumerate(self.mRobotList.nodes):
-            self.updateMap(vrobot)
+            self.updateMap(vrobot)  # Update the robot's view of its environment
 
-            vrobot.update()
+            vrobot.update()  # Update the robot's status
 
-            # 将新的机器人位置信息填入到self.mRobotPosList中
-            self.mRobotPosList[ind] = vrobot.mPos
-            vrobot.draw(self.mAx)
+            self.mRobotPosList[ind] = vrobot.mPos  # Add new position info to the list of robot positions
+            vrobot.draw(self.mAx)  # Draw the robot on the chart
 
-        # 图形显示
+        # Display graph
         if self.isPlotGraph and len(self.mRobotList.nodes) > 1:
-            graph_pos = net.circular_layout(self.mRobotList)  # 布置框架
+            graph_pos = net.circular_layout(self.mRobotList)  # Position the nodes around a circle
             net.draw(self.mRobotList, graph_pos, ax=self.mGraphAx,
-                     with_labels=False, node_size=30, edge_color=edges_color)
+                    with_labels=False, node_size=30, edge_color=edges_color)  # Draw the graph
+
         edges_color.clear()
 
-        if self.count == 35:
+        if self.count == 35:  # Check if count is equal to 35
             self.acesSuccessFlag = 1
 
-        if self.acesSuccessFlag:
-            self.calcNetworkMetrics()
+        if self.acesSuccessFlag:  # If Aces Success Flag is set
+            self.calcNetworkMetrics()  # Calculate network metrics
             print('**********a new robot has generate*****************')
             range_x = (-stage.mEnvSize[0], stage.mEnvSize[0])
             range_y = (-stage.mEnvSize[1], stage.mEnvSize[1])
             x = random.uniform(range_x[0], range_x[1])
-            y = random.uniform(range_y[0], range_y[1])
+            y = random.uniform(range_y[0], range_y[1])  # Generate new robot at random location
             newrobot = ComRobotAF_MAC((x, y, 400), stage)
             newrobot.isPlotTrail = True
             newrobot.setRadius(2)
-            stage.addRobot(newrobot)
+            stage.addRobot(newrobot)  # Add new robot to the stage
             self.acesSuccessFlag = 0
 
-        # 更新时间点
-        ComStageMAC.nowTime += 1
+        ComStageMAC.nowTime += 1  # Increment nowTime
         if ComStageMAC.nowTime >= (self.formerSlots + self.preSlots):
             ComStageMAC.nowTime = 0
 
-        if self.count % 300 == 0:
-            print(self.accessCountHistory)
+        if self.count % 300 == 0:  # Check if count modulo 300 is equal to 0
+            print(self.accessCountHistory)  # Print access count history
+
 
     def run(self):
+        """
+        A brief description of what the run() method does.
+        """
         super().run()
 
     def judgeConflict(self, in_rbt):
+        """This method checks whether there is a conflict between robots trying to communicate with me.
+        
+        Args:
+            in_rbt (list): A list of robots that are trying to communicate with me.
+            
+        Returns:
+            tuple: A tuple containing two lists - 
+                1. A list of robots that are not conflicting, and 
+                2. A list of robots that are conflicting with each other.
+        """
         if len(in_rbt) == 0:
-            return [], []
-        rept_rbt = []
-        in_rbt_temp = []
+            return [], []   # If there are no robots, return an empty tuple
+            
+        rept_rbt = []  # Create an empty list to store the conflicting robots
+        in_rbt_temp = []  # Create an empty list to store the non-conflicting robots
+        
+        # Get the IDs of all the robots trying to communicate with me at the current time step
         in_rbt_id = [robot.mId for robot in in_rbt]
         rept_set = set(in_rbt_id) & set(self.rbtID_Time[ComStageMAC.nowTime])
-        if len(rept_set) > 1:  # 大于1表示有多个机器人在该时刻同时发给我
-            # 记录冲突的机器人
+        
+        if len(rept_set) > 1:  
+            # If there are more than 1 robots trying to communicate with me at the same time step, it's a conflict
+            
+            # Identify the robots that are conflicting and add them to the 'rept_rbt' list
+            # Add the non-conflicting robots to the 'in_rbt_temp' list
             for rbt in in_rbt:
                 if rbt.mId in rept_set:
                     rept_rbt.append(rbt)
                 else:
                     in_rbt_temp.append(rbt)
+                    
         else:
+            # If there is only 1 robot communicating with me, it's not a conflict
             return in_rbt, []
 
+        # Return two lists - one with the non-conflicting robots and one with the conflicting robots
         return in_rbt_temp, rept_rbt
 
+
     def calcNetworkMetrics(self):
-        num = len(self.mRobotList)
-        degrees = net.degree_histogram(self.mRobotList)  # 度分布
-        print('robots num: ', num, ' with degrees: ', degrees)
-        clusters = net.average_clustering(self.mRobotList)
-        print('robots num: ', num, ' with clusters: ', clusters)
-        shortpaths = net.average_shortest_path_length(self.mRobotList)
-        print('robots num: ', num, ' with shortest path: ', shortpaths)
+        """This method calculates and prints network metrics for the robots in the network.
+        """
+        num = len(self.mRobotList)  # Get the number of robots in the list
+        degrees = net.degree_histogram(self.mRobotList)  # Calculate the degree distribution of the network
+        print('robots num: ', num, ' with degrees: ', degrees)  # Print the number of robots and their degrees
+        
+        clusters = net.average_clustering(self.mRobotList)  # Calculate the average clustering coefficient of the network
+        print('robots num: ', num, ' with clusters: ', clusters)  # Print the number of robots and their average clustering coefficient
+        
+        shortpaths = net.average_shortest_path_length(self.mRobotList)  # Calculate the average shortest path length of the network
+        print('robots num: ', num, ' with shortest path: ', shortpaths)  # Print the number of robots and their average shortest path length
+
 
 
 if __name__ == "__main__":
@@ -314,8 +363,3 @@ if __name__ == "__main__":
 
     stage.run()
     print(stage.accessCountHistory)
-
-
-
-
-

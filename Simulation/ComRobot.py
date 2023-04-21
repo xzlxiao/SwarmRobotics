@@ -74,34 +74,57 @@ class ComRobot(ComObject):
         self.isSensable = True  # 是否具有感知功能
 
     def setSensable(self, state=True):
+        """Sets the sensibility of the robot to perceive its environment.
+
+        Args:
+            state (bool): True if the robot is sensable, False otherwise.
+        """
         self.isSensable = state
 
     def setRobotType(self, robot_type='3D'):
+        """Sets the type of the robot.
+
+        Args:
+            robot_type (str, optional): The type of the robot. Defaults to '3D'.
+        """
         self.mRobotType = robot_type
         self.mProcessedInfo['Pos'] = {self.mId: self.pos}
     
     def setInformationState(self, state:str):
-        """设置通信状态
+        """Sets the communication state of the robot.
 
         Args:
-            state (str): 通信状态，global, local 或 no
+            state (str): communication state - "global", "local" or "no"
         """        
         self._mInformationState = state 
 
     def getInformationState(self):
+        """Gets the communication state of the robot.
+
+        Returns:
+            str: communication state - "global", "local" or "no"
+        """
         return self._mInformationState
 
     @property
     def robot_count(self):
+        """Gets the count of robots created.
+
+        Returns:
+            int: the total number of robots created.
+        """
         return ComRobot._robot_count
 
     def setMaxComNum(self, num):
+        """Sets the maximum number of robots that can establish communication with this robot.
+
+        Args:
+            num (int): Maximum number of robots that can communicate with this robot.
+        """
         self.mMaxComNum = num
 
     def update(self):
-        """
-
-        :return:
+        """Updates robotics object after a certain interval.
         """
         self.sense()
         self.processInfo()
@@ -109,36 +132,58 @@ class ComRobot(ComObject):
         self.move()
 
     def move(self):
+        """Moves the robot to a new position by calling the superclass method.
+        """    
         super().move()
 
     def communicateWith(self, robot):
+        """Enables communication between two robots.
+
+        Args:
+            robot (Robot): Another Robot object to communicate with.
+        """
         if self.isCommunicating:
             robot.mInfo.append(self.mProcessedInfo)
 
     def getGlobalPopulations(self):
-        """获得全局的所有同伴
-        """        
+        """Gets all available global populations.
+
+        Returns:
+            list: A list of all available global populations.
+        """ 
         return getObjectByType(self.mObjectType)
 
     def processInfo(self):
         '''
-        通信信息处理，如一致性
+        Communication information processing, such as consensus.
         '''
         
-        ######## start 这里写一致性等通信算法
+        ######## Start of algorithm for communication consensus and other communication details.
         for robot_type in self.mProcessedInfo.keys():
             dict_list = []
+            
+            # If there is no information available, update processed info with sensed information and return.
             if len(self.mInfo) == 0:
                 for sense_obj in self.mSenseInfo:
+                    if sense_obj.type not in self.mProcessedInfo.keys():
+                        self.mProcessedInfo[sense_obj.type] = {}
                     self.mProcessedInfo[sense_obj.type][sense_obj.id] = copy.deepcopy(sense_obj.pos)
                 self.mSenseInfo.clear()
                 return
+            
+            # Create a list of dictionaries containing positional data from other robots and the current robot.
             for item in self.mInfo:
                 dict_list.append(copy.deepcopy(item[robot_type]))
             dict_list.append(copy.deepcopy(self.mProcessedInfo[robot_type]))
+            
+            # Get a list of available IDs for neighbor robots that have information about this robot.
             neighbor_robot_available_id = ComRobot.getAllKeysInDict(dict_list)
+            
+            # If no available IDs are found, move to next robot type.
             if len(neighbor_robot_available_id) == 0:
                 continue
+
+            # Calculate the average position of the different neighbors based on their individual positions.
             for robot_id in neighbor_robot_available_id:
                 varPosInfo = 0
                 count = 0
@@ -158,11 +203,14 @@ class ComRobot(ComObject):
                         self.mProcessedInfo[robot_type][robot_id] = varPosInfo / count
         ######## end
         
+        # Update the current robot's position in processed information.
         self.mProcessedInfo['Pos'][self.mId] = copy.deepcopy(self.pos)
         
+        # Update processed information with recently sensed information.
         for sense_obj in self.mSenseInfo:
             self.mProcessedInfo[sense_obj.type][sense_obj.id] = copy.deepcopy(sense_obj.pos)
         
+        # Clear list of sensed information and add updated processed info to log.
         self.mSenseInfo.clear()
         self.mProcessedInfoRecorder.append(copy.deepcopy(self.mProcessedInfo))
         self.mInfo.clear()
@@ -170,32 +218,64 @@ class ComRobot(ComObject):
 
     @staticmethod
     def getAllKeysInDict(dict_list: list):
+        """
+        Return a list containing all the unique keys in a list of dictionaries.
+        
+        Args:
+        dict_list (list): List of dictionaries
+        
+        Returns:
+        list : List of unique keys from dictionaries
+        """
         keys_list = []
         for dict_item in dict_list:
             dict_item: dict
+            
+            # Iterate over each key in the dictionary 
             for key_item in dict_item.keys():
+                
+                # Append the key to the list if it's not already present
                 if key_item not in keys_list:
                     keys_list.append(key_item)
         return keys_list
-
+    
     def draw(self, ax):
+        """
+        Draw this object on the given matplotlib Axes.
+
+        Args:
+            ax (Axes): The matplotlib Axes to draw on.
+        """
+
+        # Call the superclass's draw method.
         super().draw(ax)
-        # self.drawOnFigure(ax)
+
+        # If communication range needs to be drawn and this object is communicating, draw it.
         if self.isDrawCommunicationRange and self.isCommunicating:
+            
+            # Create an array of angles around a circle.
             u = np.linspace(0, 2 * np.pi, 100)
             v = np.linspace(0, np.pi, 100)
+
+            # Create x, y, and z coordinates for the surface.
             x = self.mCommunicationRange * np.outer(np.cos(u), np.sin(v)) + self.mPos[0]
             y = self.mCommunicationRange * np.outer(np.sin(u), np.sin(v)) + self.mPos[1]
             z = self.mCommunicationRange * np.outer(np.ones(np.size(u)), np.cos(v)) + self.mPos[2]
+
+            # Draw the communication range either as a surface or wireframe, depending on communication range type.
             if self.mCommunicationRangeType == 0:
                 ax.plot_surface(x, y, z, color=self.mCommunicationRangeColor, alpha=self.mCommunicationRangeAlpha)
             elif self.mCommunicationRangeType == 1:
                 ax.plot_wireframe(x, y, z, color=self.mCommunicationRangeColor, alpha=self.mCommunicationRangeAlpha, rstride=self.mWireframeRstride, cstride=self.mWireframeCstride)
-        
+
+        # If sense range needs to be shown and this object can sense something, show it.
         if self.isShowSenseRange and self.isSensable:
-            # angle = self.mDirection
+            
+            # Get minimum and maximum angles of the sense range cone.
             angle_min = self.mDirection - self.mSenseAngle/2
             angle_max = self.mDirection + self.mSenseAngle/2
+
+            # Divide the cone into equal parts and calculate their positions in space.
             angle_tmp = angle_min
             angles = []
             while angle_tmp < angle_max+0.1:
@@ -212,9 +292,8 @@ class ComRobot(ComObject):
                 x.append(pts[-1][0])
                 y.append(pts[-1][1])
                 z.append(self.mPos[2])
-            # pt_straight = np.matmul(pt, ComObject.getRotationMat(angle))+self.mPos[0:2]
-            # ax.plot((self.mPos[0], pt_straight[0]), (self.mPos[1], pt_straight[1]), (self.mPos[2], self.mPos[2]), 'r:')
 
+            # Draw the sense range either as lines or a wireframe, depending on the dimensions of the stage.
             if self.mStage.mStageType == '3D':
                 ax.plot((self.pos[0], pts[0][0]), (self.pos[1], pts[0][1]), (self.pos[2], self.pos[2]), 'r:')
                 ax.plot((self.pos[0], pts[-1][0]), (self.pos[1], pts[-1][1]), (self.pos[2], self.pos[2]), 'r:')
@@ -224,29 +303,39 @@ class ComRobot(ComObject):
                 ax.plot((self.pos[0], pts[-1][0]), (self.pos[1], pts[-1][1]), 'r:')
                 ax.plot(x, y, 'r:')
             
+    # Define a method named "getObjectBySight" that belongs to an object
     def getObjectBySight(self):
-        '''
-        获得感知范围内的机器人
-        '''
+        """
+        This method returns the objects perceived within the robot's sensing range.
+
+        Returns:
+            A list containing the objects perceived by the robot.
+        """
+
         obj_in_sense_length = None
-        obj_in_sense_length = getObjectInRange(self.mPos, self.mSenseDistance)      # 感知距离以内的机器人
+        obj_in_sense_length = getObjectInRange(self.mPos, self.mSenseDistance)      # Get robots within perception range
         ret = []
 
-        # 挑选出感知夹角以内的机器人，即xy平面内的偏航角度正负self.mSenseAngle以内，与xy平面的夹角正负self.mSenseAngle以内
+        # Filter robots within the perception angle, i.e., within positive or negative self.mSenseAngle
+        # with respect to the xy plane and within positive or negative self.mSenseAngle with respect
+        # to the angle with the xy plane.
         for robot in obj_in_sense_length:
-            # angle_in_xy = ComObject.getAngleBetweenXandVector(robot.pos, self.pos, plat='xy') - self.mDirection
-            angle_in_xy = ComObject.getAngleBetweenXandVector(self.pos, robot.pos, plat='xy') - self.mDirection     # xy平面内的偏航角度
-            angle_with_xy = ComObject.getAngleBetweenXandVector(self.pos, robot.pos, plat='o-xy')   # 与xy平面的夹角
+            angle_in_xy = ComObject.getAngleBetweenXandVector(self.pos, robot.pos, plat='xy') - self.mDirection     # The bearing angle of the robot in the xy plane
+            angle_with_xy = ComObject.getAngleBetweenXandVector(self.pos, robot.pos, plat='o-xy')   # The angle with respect to the xy plane
+
+            # Make sure the bearing angle is between -pi and pi
             if angle_in_xy > math.pi:
                 angle_in_xy = 2*math.pi - angle_in_xy
             if angle_in_xy < -math.pi:
                 angle_in_xy = 2*math.pi + angle_in_xy
+
+            # Make sure the angle with respect to the xy plane is between -pi and pi
             if angle_with_xy > math.pi:
                 angle_with_xy = 2*math.pi - angle_with_xy
             if angle_with_xy < -math.pi:
                 angle_with_xy = 2*math.pi + angle_with_xy
 
-            # angle_in_xy = math.pi - angle_in_xy
+            # Determine whether the robot is sensed
             is_robot_sensed = False
             if self.mRobotType == '3D':
                 if angle_in_xy >= -self.mSenseAngle/2 and angle_in_xy <= self.mSenseAngle/2:
@@ -256,6 +345,7 @@ class ComRobot(ComObject):
                 if angle_in_xy >= -self.mSenseAngle/2 and angle_in_xy <= self.mSenseAngle/2:
                     is_robot_sensed = True 
 
+            # If the robot is sensed, add it to the response list
             if is_robot_sensed:
                 sense_obj = ObjectInfo()
                 sense_obj.id = robot.mId
@@ -263,24 +353,66 @@ class ComRobot(ComObject):
                 sense_obj.pos = robot.pos
                 self.mSenseInfo.append(sense_obj)
                 ret.append(robot)
+
+        # Return the list of robots that were sensed
         return ret
     
 
 
+    # Define a method named "sense" that belongs to an object.
     def sense(self):
+        """
+        This method is used to make the robot sense the environment around it. 
+
+        Returns:
+        None
+        """
+        # If the robot can sense, call the parent class's sense method 
+        # and then get the objects perceived by the robot.
         if self.isSensable:
             super().sense()
             self.getObjectBySight()
             
 
+    # Define a method named "setSenseDistance" that sets the sensing distance of the robot.
     def setSenseDistance(self, dist):
+        """
+        This method is used to set the sensing distance for the robot.
+
+        Args:
+        dist (float): The desired sensing distance for the robot.
+
+        Returns:
+        None
+        """
         self.mSenseDistance = dist
 
+    # Define a method named "setCommunicationMethod" that sets the communication 
+    # method of the robot using an enum type named "CommunicateMethods".
     def setCommuntcationMethod(self, com_method: CommunicateMethods):
+        """
+        This method is used to set the communication method for the robot.
+
+        Args:
+        com_method (enum): A member of the CommunicateMethods enum.
+
+        Returns:
+        None
+        """
         self.isRandomCom = False
         self.mComMethod = com_method
 
+    # Define a method named "getRobotById" that returns the robot with the specified id.
     def getRobotById(self, id):
+        """
+        This method is used to return the robot with the specified ID.
+
+        Args:
+        id (int): The ID of the robot to look for.
+
+        Returns:
+        ComRobot object: The robot with the specified ID, or None if it is not found.
+        """
         for robot in ComRobot._robot_list:
             if robot.mId == id:
                 return robot

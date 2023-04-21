@@ -48,60 +48,95 @@ class ComRobotAFfast(ComRobotCon):
         self.PosibilityOfNewTarget = 0.1
 
     def update(self):
+        """
+        This function updates the state of the robot by performing the following actions:
+            1. Checks if the robot has reached its target position, and chooses a new random target if necessary.
+            2. Calls the sense() function to get information about nearby robots and targets.
+            3. Processes the information obtained in step 2 using the processInfo() function.
+            4. Applies the AFfast algorithm to update the self.mDirection variable.
+            5. Moves the robot to its new position using the move() function.
+
+        Args:
+            None
+            
+        Returns:
+            None
+        
+        """
         # if (self.pos == self.target).all():
         #     self.chooseRandotarget()
-        self.sense()
-        self.processInfo()
-        self.AFfast()
 
+        # Call the sense() function to get information about nearby robots and targets
+        self.sense()
+        
+        # Process the information obtained in step 2 using the processInfo() function
+        self.processInfo()
+        
+        # Apply the AFfast algorithm to update the self.mDirection variable
+        self.AFfast()
+        
         if self.isPathPlanning:
             if self.getPlanningControl().mTarget is None:
                 self.setPlanningTarget(self.mPos)
             self.pathPlanning()
 
-            # print(self.mDirection)
-            # print(self.mTargetDirection)
-            # print(self.mPathPlanningControl.mPathPtList_x, self.mPathPlanningControl.mPathPtList_y)
-            
         self.pathFollowing()
         # if self.mId == 0:
         #     print(self.mLineSpeed, self.mRotationSpeed)
         self.move()
     
-    def  AFfast(self):
-        # 最大拥挤度计算，分母不能为0，最大拥挤度等于种群数量的倒数
+    def AFfast(self):
+        """
+        This function implements the AFfast algorithm for the robot to make a decision on its next action.
+        The following steps are performed:
+            1. Calculate the maximum crowdedness of the environment, which is equal to the inverse of the population size.
+            2. If the random number generated is less than the probability of choosing a new target or the robot is stopping, try swarm and follow behaviors.
+            3. Compare the fitness values obtained from the swarm and follow behaviors and select the optimal decision.
+            4. If neither swarm nor follow are feasible, execute prey behavior instead.
+            
+        Args:
+            None
+            
+        Returns:
+            None
         
+        """
+
+        # Calculate the maximum crowdedness of the environment
         if len(self.mPopulation) > 0:
-            # self.mMaxCrowded = 1 / len(self.mPopulation)
             self.mMaxCrowded = 1
         else:
             self.mMaxCrowded = 0
 
+        # If the random number generated is less than the probability of choosing a new target or the robot is stopping, try swarm and follow behaviors
         if random.random() < self.PosibilityOfNewTarget or self.isStopping():
             
-            # 试探聚群和跟随
+            # Try swarm and follow behaviors and compare their fitness values
             swarm_fitness = self.swarm()
             follow_fitness = self.follow()
             if swarm_fitness < 0 and follow_fitness < 0:
                 prey_fitness = self.prey()
             
-            # 比较试探的结果
+            # Compare the fitness values obtained from the swarm and follow behaviors and select the optimal decision
             if swarm_fitness > self.mFitness or follow_fitness > self.mFitness:
-                # 选出最优的决策，执行
                 if swarm_fitness > follow_fitness:
                     self.swarm()
-                    
                 else:
                     self.follow()
-            else:  # 聚群和跟随都不合适则执行觅食
+            else:  # If neither swarm nor follow are feasible, execute prey behavior instead
                 prey_fitness = self.prey()
-        
+
     @staticmethod
     def randomTrue(probability=0.5):
         """
-        随机真假
-        :param probability:  结果为True的概率
-        :return:
+        This function returns a random boolean value based on the given probability of getting True.
+        
+        Args:
+            probability: The probability of returning True, defaults to 0.5.
+            
+        Returns:
+            bool: A random boolean value.
+        
         """
         if np.random.rand() < probability:
             return True
@@ -109,6 +144,16 @@ class ComRobotAFfast(ComRobotCon):
             return False
 
     def sense(self):
+        """
+        This function calls the sense() function of the parent class to get information about nearby robots and targets.
+        
+        Args:
+            None
+            
+        Returns:
+            None
+        
+        """
         super().sense()
         # 添加更新自身fitness的算法
         # self.mFitness = self.getPosFit(self.pos)
@@ -117,32 +162,44 @@ class ComRobotAFfast(ComRobotCon):
     
     def prey(self):
         """
-        觅食算子，若达到最大觅食尝试尝试次数，目标适应度依然小于当前适应度，则返回随机位置
-        :return:
-        """
+        This function is called "prey", which is responsible for hunting food. If the maximum number of attempts to search for food has been reached and the fitness of the target is still lower than the current fitness, return a random position.
+        
+        Returns:
+            _type_: _description_
+        """ 
+        # Loops through a specified range of hunt attempts (self.mMaxPreyNum) 
         for _ in range(self.mMaxPreyNum):
-            pos = self.getRandomSensePos()
-            fitness = self.getPosFit(pos)
+            pos = self.getRandomSensePos()  # Get a random position to search for food
+            fitness = self.getPosFit(pos)  # Calculate the fitness of the position
+            # If the fitness is greater than the current fitness
             if fitness > self.mFitness:
+                # If path planning is enabled, set the planning target to the new position
                 if self.isPathPlanning:
                     self.setPlanningTarget(pos)
                 else:
-                    self.target = pos
-                return fitness
-        pos = self.getRandomSensePos()
+                    self.target = pos   # Otherwise, update the target position to the new position
+                return fitness  # Return the fitness of the position
+        pos = self.getRandomSensePos()  # Get another random position to search for food
         if self.isPathPlanning:
-            self.setPlanningTarget(pos)
+            self.setPlanningTarget(pos)    # If path planning is enabled, set the planning target to the new position
         else:
-            self.target = pos
-        self.mFollowedAgentID = None
-        return self.getPosFit(pos)
+            self.target = pos   # Otherwise, update the target position to the new position
+        self.mFollowedAgentID = None   # Reset followed agent ID to None
+        return self.getPosFit(pos)  # Return the fitness of the position
+
 
     def swarm(self):
         """
-        聚群算子，计算聚群目标，计算目标适应度
-        :return: 目标适应度
+        This function implements the swarm operator, which calculates the center of the population and its fitness value.
+
+        Args:
+            None
+            
+        Returns:
+            float: The fitness value at the calculated center of the population.
+        
         """
-        # 若人工鱼数量大于0，计算中心点
+        # Calculate the center of the population
         if len(self.mPopulation) > 0:
             center = np.array([0.0, 0.0, 0.0], dtype=np.float32)
             for agent_pos in self.mPopulation.values():
@@ -152,6 +209,8 @@ class ComRobotAFfast(ComRobotCon):
                     agent_pos = agent_pos_tmp
                 center += agent_pos
             center /= len(self.mPopulation)
+            
+            # Ensure that the center is within the bounds of the environment
             if center[0] > settings.CS_ENVSIZE[0]:
                 center[0] = settings.CS_ENVSIZE[0]
             if center[1] > settings.CS_ENVSIZE[1]:
@@ -164,8 +223,9 @@ class ComRobotAFfast(ComRobotCon):
                 center[1] = 0
             if center[2] < 0:
                 center[2] = 0
-
-            # 计算该点适应度
+            
+            # Calculate the fitness value at the center and return it if it's higher than the current fitness value and
+            # not too crowded
             fitness = self.getPosFit(center)
             if fitness > self.mFitness and not self.isCrowded(fitness, self.mFitness, center):
                 if self.isPathPlanning:
@@ -173,15 +233,23 @@ class ComRobotAFfast(ComRobotCon):
                 else:
                     self.target = center
                 return fitness
-        # 若人工鱼数量等于0，或适应度无法改善，或过于拥挤
-
+        # If there are no agents or the fitness value at the center can't be improved or the center is too crowded,
+        # return -1 to indicate failure to find a target.
         self.mFollowedAgentID = None
         return -1
 
     def getAgentsInRangeOfPos(self, pos: np.ndarray, r: float):
         """
-        获得点pos半径range内的Agent
-        :return: [[id: pos], [id: pos], ...]
+        This function finds all the agents within a given radius of a position.
+
+        Args:
+            pos (np.ndarray): The position to check for nearby agents.
+            r (float): The radius within which to check for nearby agents.
+            
+        Returns:
+            list: A list of tuples in the format [[id, pos], [id, pos], ...] representing the IDs and positions of 
+            all the agents within the given radius.
+        
         """
         query_pos = np.array([.0, .0, .0])
         if len(pos) < 3:
@@ -195,86 +263,125 @@ class ComRobotAFfast(ComRobotCon):
         inds = inds[0]
         return [(agents_keys_group[ind], agents_pos_group[ind]) for ind in inds]
 
+
+    # Define a method 'follow' for a class
     def follow(self):
         """
-        追尾算子，计算追尾目标，计算目标适应度
-        1、找到感知范围内适应度最大的人工鱼
-        2、如果适应度比自己大，且不拥挤
-        3、则向该人工鱼移动一步
-        :return: 目标适应度
+        This method is used to calculate the following target and the target's fitness score:
+        1. Find the artificial fish with the highest fitness score within the perception range;
+        2. If the target's fitness score is larger than that of itself and the area is not crowded, move one step towards the target;
+        Returns: The fitness score of the target or -1 if no suitable target found
         """
-        # 找到感知范围内适应度最大的人工鱼
+        # Find the artificial fish with the highest fitness score within the perception range
         agent_max_pos = None
         agent_max_id = None
         fitness_max = 0
         for agent_id, agent_pos in self.mPopulation.items():
-            # fitness = self.getPosFit(fish.pos, food_sense)
+            # Calculate the fitness score of the target
             fitness = self.getPosFit(agent_pos)
             if fitness > fitness_max:
                 fitness_max = fitness
                 agent_max_pos = agent_pos
                 agent_max_id = agent_id
-        # 如果适应度比自己大
+        # If the target's fitness score is larger than that of itself
         if fitness_max > self.mFitness and agent_max_pos is not None:
-            if self.isCrowded(fitness_max, self.mFitness, agent_max_pos):  # 感知该人工鱼的拥挤度，如果拥挤度不大，则向该人工鱼移动一步
-                if self.isPathPlanning:
-                    self.setPlanningTarget(agent_max_pos)
-                else:
-                    self.target = agent_max_pos
+            # Check if the area is crowded and move one step towards the target if it is not too crowded
+            if self.isCrowded(fitness_max, self.mFitness, agent_max_pos):  
+                self.target = agent_max_pos
                 return fitness_max
         self.mFollowedAgentID = agent_max_id
-        # 否则返回-1
+        # Return -1 if there is no suitable target found
         return -1
 
     def isCrowded(self, target_fitness, current_fitness, target_pos):
         """
-        判断是否拥挤
-        :param target_fitness:      目标适应度
-        :param current_fitness:     当前适应度
-        :param target_pos:          目标坐标
-        :return:                    是否拥挤
-        """
+        This method checks whether the given position is too crowded or not:
+        1. Calculates the number of agents within the specified crowded range around the target position;
+        2. If there are no agents within the range, it returns False;
+        3. Otherwise, it calculates the ratio of the target fitness and the number of agents in the range to the maximum allowed crowdedness and compares it with the current fitness;
+        4. If the ratio is less than the maximum allowed crowdedness, then it returns True; otherwise, it returns False.
+
+        Args:
+            target_fitness (float): The fitness score of the target position
+            current_fitness (float): The fitness score of the current position
+            target_pos (tuple): A tuple specifying the x and y coordinates of the target position
+
+        Returns:
+            bool: True if the position is too crowded, otherwise False
+        """        
+        # Calculate the number of agents within the specified crowded range around the target position
         agent_num_in_range = len(self.getAgentsInRangeOfPos(target_pos, mySettings.CS_CROWDEDRANGE))
 
+        # Return False if there are no agents within the specified range
         if agent_num_in_range == 0:
             return False
+        # Calculate the fitness ratio and compare it with the maximum allowed crowdedness
         elif (target_fitness / agent_num_in_range) < (self.mMaxCrowded * current_fitness):
             return True
         else:
             return False
 
+
     def getPosFit(self, position):
         """
-        适应度计算
-        :param position:
-        :return: 适应度
-        """
+        This method calculates the fitness score of a given position based on the distance from the food sources:
+        1. Converts the two-dimensional position to three-dimensional coordinates;
+        2. For each food source in the environment, it calculates the Euclidean distance between the position and the food source and subtracts it from 1 to get a normalized fitness value for that food source;
+        3. The final fitness value is the maximum fitness value among all the food sources;
+        4. Applies a sigmoid function to normalize and restrict the fitness value to range [0, 1].
+
+        Args:
+            position (tuple): A tuple specifying the x and y coordinates of the position
+
+        Returns:
+            float: The fitness score of the position
+        """        
+        # Initialize the fitness score to 0
         fitness = 0.0
+        # Convert the 2D position to 3D coordinates
         position = utils.two_dim_to_three_dim(position)
+        
+        # Calculate the fitness contribution of each food source
         if len(self.mFood) > 0:
             for food_pos in self.mFood:
                 food_pos = utils.two_dim_to_three_dim(food_pos)
-                fitness_tmp = 1 - (np.linalg.norm(np.array(position, dtype=np.float32) - food_pos, ord=2) / self.mSenseDistance)
-                # fitness_tmp = 1 / (np.linalg.norm(np.array(position, dtype=np.float32) - food_pos, ord=2) + 0.000000000000001)
+                distance = np.linalg.norm(np.array(position, dtype=np.float32) - food_pos, ord=2)
+                fitness_tmp = 1 - (distance / self.mSenseDistance)
+                # In case we want to use inverse distance as fitness value
+                #fitness_tmp = 1 / (distance + 0.000000000000001)
+                # Update the fitness score with the maximum fitness contribution from all the food sources
                 if fitness_tmp > fitness:
                     fitness = fitness_tmp
+        
+        # Apply a sigmoid function to normalize and restrict the fitness value to range [0, 1]
         fitness = utils.sigmoid(fitness, 0.5, 0.5)
         return fitness
 
+
     def randomSensePosFit(self):
         """
-        获得当前感知范围内随机位置的适应度
-        :return: 适应度, 位置
-        """
+        This method calculates the fitness score of a randomly generated position within the sensing range of the agent:
+        1. Generates a random position within the sensing range of the agent;
+        2. Calculates the fitness score of the random position using the 'getPosFit()' method.
+
+        Returns:
+            tuple: A tuple containing the fitness score and the randomly generated position (in that order).
+        """        
+        # Generate a random position within the sensing range of the agent
         pos = self.getRandomSensePos()
+        # Calculate the fitness score of the random position using 'getPosFit()' method
         fitness = self.getPosFit(pos)
+        # Return a tuple containing the fitness score and the randomly generated position
         return fitness, pos
+
 
     def getRandomSensePos(self):
         """
-        获得视野内的随机位置
-        :return: 位置 np.float32
-        """
+        This method generates a random position within the sensing range of the agent.
+
+        Returns:
+            np.float32: A randomly generated position within the agent's sensing range.
+        """        
         if self.pos[0] - self.mSenseDistance > -mySettings.CS_ENVSIZE[0]:
             x_min = self.pos[0] - self.mSenseDistance
         else:

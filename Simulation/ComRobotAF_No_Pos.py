@@ -22,9 +22,20 @@ class ComRobotAF_No_Pos(ComRobotAFfast):
         super().__init__(pos)
         self.isCommunicating = False
 
+    # Define a method called 'sense' within a class that takes no parameters.
     def sense(self):
+        """
+        This method is used to update the fitness of the object itself by calling the 'getPosFit' method on its position.
+        It also stores information about food and population in instance variables.
+        """ 
+        # Call the 'sense' method of the parent class using 'super()' function.
         super().sense()
-        # 添加更新自身fitness的算法
+        
+        # Update the fitness value of the object itself based on its position.
         self.mFitness = self.getPosFit(self.pos)
+        
+        # Store the value of available food in an instance variable named 'mFood'.
         self.mFood = self.mProcessedInfo['ComFish'].values()
+        
+        # Store the value of population in an instance variable named 'mPopulation'.
         self.mPopulation = self.mProcessedInfo['ComRobotAF']
