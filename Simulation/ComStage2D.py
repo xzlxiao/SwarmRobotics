@@ -67,11 +67,8 @@ class ComStage2D(ComStage):
             self.mRobotPosList[ind] = robot.pos
             robot.draw(self.mAx)
             robot.update()
-        t1 = time.time()
         # Update and draw stuff
         [[stuff.update(), stuff.draw(self.mAx)] for stuff in self.mStuffList]
-        t2 = time.time()
-        print('update time: ', t2-t1)
 
         if self.isFixedComNet:
             if self.isComConstrained:
