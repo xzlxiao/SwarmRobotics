@@ -1,8 +1,6 @@
 var searchData=
 [
-  ['comrobotaf_5fniche_5fevolve_0',['ComRobotAF_niche_evolve',['../d2/de6/namespace_simulation_1_1_com_robot_a_f__niche__evolve.html',1,'Simulation']]],
-  ['comrobotaf_5fniche_5fevolve_5fglobal_1',['ComRobotAF_niche_evolve_Global',['../de/dc2/namespace_simulation_1_1_com_robot_a_f__niche__evolve___global.html',1,'Simulation']]],
-  ['comrobotaf_5fniche_5fglobal_2',['ComRobotAF_niche_Global',['../dc/d3b/namespace_simulation_1_1_com_robot_a_f__niche___global.html',1,'Simulation']]],
-  ['comrobotaf_5fniche_5fmarkov_3',['ComRobotAF_niche_markov',['../dd/d22/namespace_simulation_1_1_com_robot_a_f__niche__markov.html',1,'Simulation']]],
-  ['comrobotaf_5fniche_5fmarkov_5fglobal_4',['ComRobotAF_niche_markov_Global',['../d0/dd1/namespace_simulation_1_1_com_robot_a_f__niche__markov___global.html',1,'Simulation']]]
+  ['exm_5fpath_5fplanning2_0',['exm_path_planning2',['../da/da1/namespaceexm__path__planning2.html',1,'']]],
+  ['exm_5fpath_5fplanning3_5fsense_5flimited_1',['exm_path_planning3_sense_limited',['../dc/d25/namespaceexm__path__planning3__sense__limited.html',1,'']]],
+  ['exm_5fpath_5fplanning4_5fcommunication_5flimited_2',['exm_path_planning4_communication_limited',['../dd/d1f/namespaceexm__path__planning4__communication__limited.html',1,'']]]
 ];
