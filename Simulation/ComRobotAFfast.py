@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-from torch import poisson
 from Simulation.ComRobot import ComRobot 
 from Simulation.ComRobotCon import ComRobotCon 
 from Simulation.ComObject import ComObject 

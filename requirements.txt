@@ -10,3 +10,5 @@ sympy
 geomdl
 scikit-learn
 scikit-image
+numpy
+opencv-python

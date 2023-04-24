@@ -1,4 +1,3 @@
-from PyQt5.QtCore import pyqtSignal, QObject, QEvent
 from mpl_toolkits.mplot3d import Axes3D
 import mpl_toolkits.mplot3d.art3d as art3d
 import matplotlib.pyplot as plt
@@ -10,7 +9,6 @@ except:
     import numpy as np
     isCupy = False
 import matplotlib.patches as mpathes
-from PyQt5.QtWidgets import QWidget
 from Common.utils import svg_parse, loadSVG, unitVector
 from matplotlib.path import Path
 import math
