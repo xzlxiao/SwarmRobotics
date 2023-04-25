@@ -185,7 +185,7 @@ class ComRobotCon(ComRobot):
                     x = x.get()
                     y = y.get()
                 
-                ax.plot(x, y, 'b--', color='slateblue')
+                ax.plot(x, y, 'b--')
         elif self.mStage.mStageType == '3D':
             if self.isPathPlanning:
                 if self.getPlanningControl().mPathPtList_x is not None:
@@ -205,7 +205,7 @@ class ComRobotCon(ComRobot):
                     x = x.get()
                     y = y.get()
                 
-                ax.plot(x, y, z, 'b--', color='slateblue')
+                ax.plot(x, y, z, 'b--')
 
 
     def update(self):

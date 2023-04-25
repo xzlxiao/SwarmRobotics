@@ -30,9 +30,15 @@ cd SwarmRobotics
 ## 2. 使用方法
 要运行Swarm Robotics仿真平台，可以执行如下以下命令：
 
-- 3D路径规划（势场路径规划算法）
+- 在根目录下运行`Example`文件夹中的脚本
 ```bash
-python Example/exm_路径规划-3D.py
+python Example/exm_AFSA_search.py
+python Example/exm_path_planning-2D.py
+python Example/exm_path_planning-3D.py
+python Example/exm_path_planning2-2D.py
+python Example/exm_path_planning3_sense_limited-2D.py
+python Example/exm_path_planning4_communication_limited-2D.py
+python Example/exm_surface.py
 ```
 
 把python换成你对应的编译器版本。

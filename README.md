@@ -34,9 +34,15 @@ cd SwarmRobotics
 
 To run the Swarm Robotics simulation platform, you can execute the following command:
 
-*   3D Path Planning (Potential Field Path Planning Algorithm)
+*   run the script in the `Example` folder from root 
 ```bash
-python Example/exm_路径规划-3D.py
+python Example/exm_AFSA_search.py
+python Example/exm_path_planning-2D.py
+python Example/exm_path_planning-3D.py
+python Example/exm_path_planning2-2D.py
+python Example/exm_path_planning3_sense_limited-2D.py
+python Example/exm_path_planning4_communication_limited-2D.py
+python Example/exm_surface.py
 ```
 
 
