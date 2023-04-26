@@ -1,5 +1,6 @@
 import sys
 sys.path.append('./')
+sys.path.append('./src')
 from Simulation.ComSurfaceFitness import ComSurfaceFitness
 from Simulation.ComSurfaceCrowdness import ComSurfaceCrowded
 from Simulation.ComApi import *

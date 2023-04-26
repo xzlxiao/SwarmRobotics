@@ -439,13 +439,23 @@ class ComStage:
             else:
                 self.mMonitorPlot.update()
                 self.mMonitorPlot.draw(self.mMonitorGroupAx)
-        
+        self.saveAllInfo()
+
+    def saveAllInfo(self):
         if self.isSaveFig:
-            mkdir(self.mFigSaveDir + "/images")
+            # 如果不存在文件夹self.mFigSaveDir，则创建
+            if not os.path.exists(self.mFigSaveDir):
+                os.makedirs(self.mFigSaveDir)
+            if not os.path.exists(self.mFigSaveDir + "/images"):
+                mkdir(self.mFigSaveDir + "/images")
+            
             self.saveFig(self.mFigSaveDir + "/images")
 
         if self.isSavePos:
-            mkdir(self.mPosSaveDir + "/pos")
+            if not os.path.exists(self.mPosSaveDir):
+                os.makedirs(self.mPosSaveDir)
+            if not os.path.exists(self.mPosSaveDir + "/pos"):
+                mkdir(self.mPosSaveDir + "/pos")
             robot_group = self.getRobotGroup()
             stuff_group = self.getStuffGroup()
             for robot in robot_group:
@@ -454,7 +464,11 @@ class ComStage:
                 self.savePos(self.mPosSaveDir + "/pos/{}_{}.txt".format(stuff.mObjectType, stuff.mId), stuff.pos)
 
         if self.isSaveInfo:
-            mkdir(self.mSaveInfoDir + '/info')
+            if not os.path.exists(self.mSaveInfoDir):
+                os.makedirs(self.mSaveInfoDir)
+            if not os.path.exists(self.mSaveInfoDir + '/info'):
+                mkdir(self.mSaveInfoDir + '/info')
+            
             robot_group = self.getRobotGroup()
             stuff_group = self.getStuffGroup()
             for robot in robot_group:

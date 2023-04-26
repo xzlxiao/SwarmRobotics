@@ -129,24 +129,4 @@ class ComStage2D(ComStage):
                     y.append(edge[1].pos[1])
                     self.mAx.plot(x, y, 'g-.', alpha=0.3, linewidth=1)
         
-        if self.isSaveFig:
-            mkdir(self.mFigSaveDir + "/images")
-            self.saveFig(self.mFigSaveDir + "/images")
-        
-        if self.isSavePos:
-            mkdir(self.mPosSaveDir + "/pos")
-            robot_group = self.getRobotGroup()
-            stuff_group = self.getStuffGroup()
-            for robot in robot_group:
-                self.savePos(self.mPosSaveDir + "/pos/{}_{}.txt".format(robot.mObjectType, robot.mId), robot.pos)
-            for stuff in stuff_group:
-                self.savePos(self.mPosSaveDir + "/pos/{}_{}.txt".format(stuff.mObjectType, stuff.mId), stuff.pos)
-        
-        if self.isSaveInfo:
-            mkdir(self.mSaveInfoDir + '/info')
-            robot_group = self.getRobotGroup()
-            stuff_group = self.getStuffGroup()
-            for robot in robot_group:
-                self.saveInfo(self.mSaveInfoDir + "/info/{}_{}.txt".format(robot.mObjectType, robot.mId), robot.getMessage())
-            for stuff in stuff_group:
-                self.saveInfo(self.mSaveInfoDir + "/info/{}_{}.txt".format(stuff.mObjectType, stuff.mId), stuff.getMessage())
+        self.saveAllInfo()

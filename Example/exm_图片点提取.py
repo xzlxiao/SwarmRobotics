@@ -1,5 +1,5 @@
 import sys 
-sys.path.append('./')
+sys.path.append('./src')
 import matplotlib.pyplot as plt
 from draw import ImageProc
 import cv2

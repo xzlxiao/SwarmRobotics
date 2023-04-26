@@ -8,6 +8,7 @@ import random
 import numpy as np
 import sys
 sys.path.append('./')
+sys.path.append('./src')
 from Common.utils import distance
 
 

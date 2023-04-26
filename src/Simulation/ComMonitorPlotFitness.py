@@ -71,13 +71,13 @@ class ComMonitorPlotFitness(ComMonitorPlotBase):
         ind_bool = data_tmp > self.mData
         self.mData[ind_bool] = data_tmp[ind_bool]
 
-    def draw(self, *args):
+    def draw(self, ax_group):
         """
         This function is used to draw the heatmap of food sources in each agent's sensing range on the Matplotlib Axes object.
         
         Args:
-            - *args: A variable-length argument list of Matplotlib Axes objects representing the subplots of the figure where
-                    the heatmaps will be drawn.
+            ax_group (list): A list of matplotlib axes to plot on. The length of the list should be equal
+                            to the number of agents being plotted. 
 
         Returns:
             None
@@ -97,8 +97,8 @@ class ComMonitorPlotFitness(ComMonitorPlotBase):
                 y_mat = y_mat.get()
                 data = data.get()
                 
-            # Plot the contour plot of the heatmap using Matplotlib's contourf function
-            args[ind].contourf(x_mat, y_mat, data, cmap=self.mCMap, alpha=self.mAlpha)
+            # Plot the agent's positions on the corresponding axis
+            ax_group[ind].contourf(x_mat, y_mat, data, cmap=self.mCMap, alpha=self.mAlpha)
             
         # Call the 'draw' method of the parent class to finish drawing the figure
-        super().draw(*args)
+        super().draw(ax_group)

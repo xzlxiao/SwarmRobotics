@@ -1,6 +1,7 @@
 
 import sys
 sys.path.append('./')
+sys.path.append('./src')
 from Simulation.ComApi import *
 import random
 from Common import settings
