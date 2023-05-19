@@ -327,3 +327,4 @@ class ComRobotCon(ComRobot):
             return True
         else:
             return False
+    
